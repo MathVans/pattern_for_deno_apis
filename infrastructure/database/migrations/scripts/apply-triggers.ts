@@ -1,5 +1,5 @@
 import { load } from "@std/dotenv";
-import { Client } from "pg";
+import postgres from "npm:postgres";
 
 await load({ export: true });
 
@@ -9,7 +9,7 @@ await load({ export: true });
 async function extractTriggerNames(): Promise<string[]> {
   try {
     const triggersSql = await Deno.readTextFile(
-      './infrastructure/database/migrations/triggers/triggers.sql'
+      './infrastructure/database/migrations/scripts/triggers.sql'
     );
     console.log("🚀 ~ extractTriggerNames ~ triggersSql:", triggersSql)
     
@@ -28,13 +28,14 @@ async function extractTriggerNames(): Promise<string[]> {
  * Verifica e aplica triggers automaticamente
  */
 async function checkAndApplyTriggers(): Promise<void> {
-  const client = new Client({
-    connectionString: Deno.env.get("DATABASE_URL")!,
+  // Create a postgres connection
+  const sql = postgres(Deno.env.get("DATABASE_URL")!, {
+    // Optional configuration options
+    debug: false,
+    max: 1, // Use a single connection for this script
   });
   
   try {
-    await client.connect();
-    
     // Obter nomes de triggers do arquivo SQL
     const expectedTriggers = await extractTriggerNames();
     
@@ -46,13 +47,13 @@ async function checkAndApplyTriggers(): Promise<void> {
     console.log(`🔍 Triggers esperados: ${expectedTriggers.join(", ")}`);
     
     // Consultar triggers existentes no banco
-    const result = await client.query(`
+    const result = await sql`
       SELECT trigger_name 
       FROM information_schema.triggers
       WHERE trigger_schema = current_schema()
-    `);
+    `;
     
-    const installedTriggers = result.rows.map((row: { trigger_name: string; }) => row.trigger_name.toLowerCase());
+    const installedTriggers = result.map(row => row.trigger_name.toLowerCase());
     console.log(`✓ Triggers instalados: ${installedTriggers.join(", ") || "nenhum"}`);
     
     // Verificar quais triggers estão faltando
@@ -63,10 +64,11 @@ async function checkAndApplyTriggers(): Promise<void> {
       
       // Aplicar todos os triggers
       const triggersSql = await Deno.readTextFile(
-        './infrastructure/database/migrations/triggers/triggers.sql'
+        './infrastructure/database/migrations/scripts/triggers.sql'
       );
       
-      await client.query(triggersSql);
+      // Execute the SQL directly - postgres.js can handle multiple statements in one go
+      await sql.unsafe(triggersSql);
       console.log("✅ Triggers aplicados com sucesso");
     } else {
       console.log("✅ Todos os triggers já estão instalados");
@@ -75,7 +77,8 @@ async function checkAndApplyTriggers(): Promise<void> {
     console.error("❌ Erro ao verificar/aplicar triggers:", error);
     throw error;
   } finally {
-    await client.end();
+    // Close the connection
+    await sql.end();
   }
 }
 

@@ -1,11 +1,11 @@
 {
   "version": "7",
-  "dialect": "mysql",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1741964275572,
+      "version": "7",
+      "when": 1742093463428,
       "tag": "0000_deno_dev",
       "breakpoints": true
     }
