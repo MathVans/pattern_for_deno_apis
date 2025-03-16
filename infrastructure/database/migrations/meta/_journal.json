@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1741964275572,
+      "tag": "0000_deno_dev",
+      "breakpoints": true
+    }
+  ]
+}
