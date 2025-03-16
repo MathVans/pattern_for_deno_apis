@@ -6,6 +6,7 @@
     "jsr:@std/internal@^1.0.5": "1.0.5",
     "npm:@hono/zod-validator@~0.4.3": "0.4.3_hono@4.7.4_zod@3.24.2",
     "npm:@types/node@*": "22.5.4",
+    "npm:dotenv@*": "16.4.7",
     "npm:drizzle-kit@*": "0.30.5_esbuild@0.19.12",
     "npm:drizzle-kit@~0.30.5": "0.30.5_esbuild@0.19.12",
     "npm:drizzle-orm@0.40": "0.40.0_postgres@3.4.5",
@@ -227,6 +228,9 @@
       "dependencies": [
         "ms"
       ]
+    },
+    "dotenv@16.4.7": {
+      "integrity": "sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ=="
     },
     "drizzle-kit@0.30.5_esbuild@0.19.12": {
       "integrity": "sha512-l6dMSE100u7sDaTbLczibrQZjA35jLsHNqIV+jmhNVO3O8jzM6kywMOmV9uOz9ZVSCMPQhAZEFjL/qDPVrqpUA==",

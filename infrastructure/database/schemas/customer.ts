@@ -7,8 +7,8 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { relations } from "drizzle-orm";
-import { roleTable } from "./role.ts";
-import { addressTable } from "./address.ts";
+import { role, roleTable } from "./role.ts";
+import { address, addressTable } from "./address.ts";
 import { addTimestamps } from "../helpers/index.ts";
 
 export const customerTable = pgTable("deno_customers", {
@@ -27,17 +27,17 @@ export const customerTable = pgTable("deno_customers", {
 }
 );
 
-// O restante permanece o mesmo
 export const customerRelations = relations(customerTable, ({ many, one }) => ({
-  addresses: many(addressTable),
+  addresses: many(addressTable), // Certifique-se de que addressTable está corretamente importado e definido.
   role: one(roleTable, {
-    fields: [customerTable.roleId],
-    references: [roleTable.id],
+    fields: [customerTable.roleId], // Confirme que roleId é a chave estrangeira correta.
+    references: [roleTable.id], // Certifique-se de que roleTable.id existe e está correto.
   }),
 }));
 
 export type customer = typeof customerTable.$inferSelect;
 export type newCustomer = typeof customerTable.$inferInsert;
+export type customerInfo = customer & { addresses: address[], role: role };
 export type updateCustomer = Partial<
-  Omit<customer, "id" | "createdAt" | "updatedAt">
+  Omit<customer, "uuid" | "createdAt" | "updatedAt">
 >;

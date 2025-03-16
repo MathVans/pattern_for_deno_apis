@@ -21,7 +21,7 @@ export type role = typeof roleTable.$inferSelect;
 export type newRole = typeof roleTable.$inferInsert;
 export type updateRole = Partial<Omit<role, "id">>;
 
-export const roleRelations = relations(roleTable, ({many})=>({
-  customers: many(customerTable)
-})
-);
+// Relação com os customers
+export const roleRelations = relations(roleTable, ({ many }) => ({
+  customers: many(customerTable),
+}));

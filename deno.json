@@ -1,7 +1,7 @@
 {
   "nodeModulesDir": "auto",
   "tasks": {
-    "dev": "deno run -A --watch main.ts",
+    "dev": "deno run -A --env --watch main.ts",
     "db:generate": "deno run --env -A  npm:drizzle-kit generate  --config=drizzle.config.ts --name=deno_dev",
     "db:migrate": "deno run --env -A npm:drizzle-kit migrate --config=drizzle.config.ts && deno run --env -A infrastructure/database/migrations/scripts/apply-triggers.ts",
     "db:push": "deno run --env -A npm:drizzle-kit push --config=drizzle.config.ts",
