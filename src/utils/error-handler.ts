@@ -1,0 +1,159 @@
+import { stat } from "node:fs";
+import { Context } from "npm:hono";
+import { z } from "zod";
+
+/**
+ * Standard API error codes
+ */
+export enum ErrorCode {
+  BAD_REQUEST = "BAD_REQUEST",
+  UNAUTHORIZED = "UNAUTHORIZED",
+  NOT_FOUND = "NOT_FOUND",
+  CONFLICT = "CONFLICT",
+  VALIDATION = "VALIDATION",
+  INTERNAL = "INTERNAL",
+}
+
+/**
+ * Standard API error class
+ */
+export class ApiError extends Error {
+  code: ErrorCode;
+  status: number;
+  details?: unknown;
+
+  constructor(
+    message: string,
+    code: ErrorCode,
+    status: number,
+    details?: unknown,
+  ) {
+    super(message);
+    this.name = "ApiError";
+    this.code = code;
+    this.status = status;
+    this.details = details;
+  }
+
+  // Helper methods to create common error types
+  static badRequest(message: string, details?: unknown): ApiError {
+    return new ApiError(message, ErrorCode.BAD_REQUEST, 400, details);
+  }
+
+  static unauthorized(message: string): ApiError {
+    return new ApiError(message, ErrorCode.UNAUTHORIZED, 401);
+  }
+
+  static notFound(message: string): ApiError {
+    return new ApiError(message, ErrorCode.NOT_FOUND, 404);
+  }
+
+  static conflict(message: string): ApiError {
+    return new ApiError(message, ErrorCode.CONFLICT, 409);
+  }
+
+  static validation(message: string, details?: unknown): ApiError {
+    return new ApiError(message, ErrorCode.VALIDATION, 422, details);
+  }
+
+  static internal(message: string = "Internal server error"): ApiError {
+    return new ApiError(message, ErrorCode.INTERNAL, 500);
+  }
+}
+
+/**
+ * Map business errors to appropriate HTTP errors
+ */
+export function mapBusinessError(error: Error): ApiError {
+  // Common business error messages to map to specific HTTP errors
+  if (error.message === "Customer not found") {
+    return ApiError.notFound(error.message);
+  }
+
+  if (
+    error.message === "Email already in use" ||
+    error.message === "Email already in use by another customer"
+  ) {
+    return ApiError.conflict(error.message);
+  }
+
+  if (error.message === "Credit limit cannot be negative") {
+    return ApiError.badRequest(error.message);
+  }
+
+  // Default to internal server error
+  return ApiError.internal(error.message);
+}
+
+/**
+ * Handle error responses in controllers
+ */
+export function handleError(c: Context, error: unknown): Response {
+  console.error("Error:", error);
+
+  // Handle ApiError
+  if (error instanceof ApiError) {
+    return c.json({
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      status: error.status,
+    });
+  }
+
+  // Handle Zod validation errors
+  if (error instanceof z.ZodError) {
+    return c.json({
+      code: ErrorCode.VALIDATION,
+      message: "Validation failed",
+      details: error.format(),
+    }, 422);
+  }
+
+  // Handle standard Error
+  if (error instanceof Error) {
+    const apiError = mapBusinessError(error);
+    return c.json({
+      code: apiError.code,
+      message: apiError.message,
+      details: apiError.details,
+      status: apiError.status,
+    });
+  }
+
+  // Handle unknown errors
+  return c.json({
+    code: ErrorCode.INTERNAL,
+    message: "An unexpected error occurred",
+  }, 500);
+}
+
+/**
+ * Error handling middleware
+ */
+export function errorMiddleware() {
+  return async (c: Context, next: () => Promise<void>) => {
+    try {
+      await next();
+    } catch (error) {
+      return handleError(c, error);
+    }
+  };
+}
+
+/**
+ * Try-catch wrapper for controller methods
+ */
+export function safeFn<T extends unknown[], R>(
+  fn: (...args: T) => Promise<R>,
+): (...args: T) => Promise<R> {
+  return async (...args: T) => {
+    try {
+      return await fn(...args);
+    } catch (error) {
+      throw error instanceof ApiError
+        ? error
+        : mapBusinessError(error as Error);
+    }
+  };
+}
