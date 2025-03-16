@@ -4,7 +4,8 @@
     "dev": "deno run -A --watch main.ts",
     "db:generate": "deno run --env -A  npm:drizzle-kit generate  --config=drizzle.config.ts --name=deno_dev",
     "db:migrate": "deno run --env -A npm:drizzle-kit migrate --config=drizzle.config.ts && deno run --env -A infrastructure/database/migrations/scripts/apply-triggers.ts",
-    "db:studio": " deno run --env -A npm:drizzle-kit studio --config=drizzle.config.ts --port=3000"
+    "db:studio": " deno run --env -A npm:drizzle-kit studio --config=drizzle.config.ts --port=3000",
+    "db:apply-triggers": "deno run --env -A scripts/apply-triggers.ts",
   },
   "imports": {
     "@hono/zod-validator": "npm:@hono/zod-validator@^0.4.3",
