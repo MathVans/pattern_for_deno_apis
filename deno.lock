@@ -11,6 +11,7 @@
     "npm:drizzle-orm@~0.39.3": "0.39.3_mysql2@3.12.0_pg@8.14.0",
     "npm:hono-openapi@~0.4.4": "0.4.4_@hono+zod-validator@0.4.3__hono@4.7.1__zod@3.24.2_hono@4.7.1_zod@3.24.2_zod-openapi@4.2.3__zod@3.24.2",
     "npm:hono@^4.7.1": "4.7.1",
+    "npm:hono@^4.7.4": "4.7.4",
     "npm:mysql2@^3.12.0": "3.12.0",
     "npm:pg@^8.14.0": "8.14.0",
     "npm:zod-openapi@^4.2.3": "4.2.3_zod@3.24.2",
@@ -194,7 +195,7 @@
     "@hono/zod-validator@0.4.3_hono@4.7.1_zod@3.24.2": {
       "integrity": "sha512-xIgMYXDyJ4Hj6ekm9T9Y27s080Nl9NXHcJkOvkXPhubOLj8hZkOL8pDnnXfvCf5xEE8Q4oMFenQUZZREUY2gqQ==",
       "dependencies": [
-        "hono",
+        "hono@4.7.1",
         "zod"
       ]
     },
@@ -325,7 +326,7 @@
       "integrity": "sha512-8UdlOwqGuKwtmGgiUcxRarIi0XOY9ZED+XfpVaZr9un5jl9p9dTLrnIhs1i+eTqvHNHV4QNF0C5bbfxdMBYe+w==",
       "dependencies": [
         "@hono/zod-validator",
-        "hono",
+        "hono@4.7.1",
         "json-schema-walker",
         "zod",
         "zod-openapi"
@@ -333,6 +334,9 @@
     },
     "hono@4.7.1": {
       "integrity": "sha512-V3eWoPkBxoNgFCkSc5Y5rpLF6YoQQx1pkYO4qrF6YfOw8RZbujUNlJLZCxh0z9gZct70+je2Ih7Zrdpv21hP9w=="
+    },
+    "hono@4.7.4": {
+      "integrity": "sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg=="
     },
     "iconv-lite@0.6.3": {
       "integrity": "sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==",
@@ -498,6 +502,7 @@
       "npm:drizzle-orm@~0.39.3",
       "npm:hono-openapi@~0.4.4",
       "npm:hono@^4.7.1",
+      "npm:hono@^4.7.4",
       "npm:pg@^8.14.0",
       "npm:zod-openapi@^4.2.3",
       "npm:zod@^3.24.2"
