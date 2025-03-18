@@ -19,9 +19,6 @@ app.use(prettyJSON());
 app.use("/*", cors());
 app.use(logger());
 
-// Mount customer routes
-// app.route("/api/customers", customerRouter);
-
 // Load OpenAPI specs
 app.get("/openapi", openAPISpecs(app, swaggerConfig));
 
@@ -29,7 +26,7 @@ app.get(
   "/docs",
   apiReference({
     theme: "mars",
-    specification: "/openapi",
+    spec: { url: "/openapi" },
   }),
 );
 

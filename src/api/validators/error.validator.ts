@@ -1,6 +1,6 @@
 import { z } from "npm:zod";
 import "npm:zod-openapi/extend";
-import { ErrorCode } from "";
+import { ErrorCode } from "./../../utils/error-handler.ts";
 
 /**
  * Base error schema for API responses
