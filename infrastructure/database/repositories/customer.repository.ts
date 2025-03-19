@@ -140,8 +140,8 @@ export class CustomerRepository implements ICustomerRepository {
     // Buscar dados com limite
     const data = await db.query.customers.findMany({
       with: {
-        addresses: true,
-        role: true,
+        // addresses: true,
+        // role: true,
       },
       limit: limit,
       offset: offset,

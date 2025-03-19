@@ -18,6 +18,7 @@
     "@scalar/hono-api-reference": "npm:@scalar/hono-api-reference@^0.7.1",
     "@std/assert": "jsr:@std/assert@^1.0.11",
     "@std/dotenv": "jsr:@std/dotenv@^0.225.3",
+    "@std/http": "jsr:@std/http@^1.0.13",
     "drizzle-kit": "npm:drizzle-kit@^0.30.5",
     "drizzle-orm": "npm:drizzle-orm@^0.40.0",
     "drizzle-seed": "npm:drizzle-seed@^0.3.1",

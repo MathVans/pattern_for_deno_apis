@@ -8,17 +8,9 @@ const baseCustomerSchema = createSelectSchema(customerTable);
 const baseNewCustomerSchema = createInsertSchema(customerTable);
 
 // Enhance with additional validation and OpenAPI documentation
-export const customerSchema = baseCustomerSchema.extend({
-  // You can refine the validation rules here
-  firstName: z.string().min(2, "First name must be at least 2 characters")
-    .openapi({
-      example: "John",
-      description: "Customer's first name",
-    }),
-  email: z.string().email("Invalid email format").openapi({
-    example: "john.doe@example.com",
-  }),
-}).openapi({ ref: "Customer" });
+export const customerSchema = baseCustomerSchema.extend({}).openapi({
+  ref: "Customer",
+});
 
 export const createCustomerSchema = baseNewCustomerSchema.extend({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -58,3 +50,13 @@ export const customerInfoSchema = customerSchema.extend({
     updatedAt: z.date().optional(),
   }),
 }).openapi({ ref: "CustomerInfo" });
+
+export const customersPaginationSchema = z.object({
+  data: z.array(baseCustomerSchema),
+  pagination: z.object({
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    pages: z.number(),
+  }),
+}).openapi({ ref: "CustomersPagination" });

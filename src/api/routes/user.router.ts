@@ -6,6 +6,7 @@ import {
   createCustomerSchema,
   customerInfoSchema,
   customerSchema,
+  customersPaginationSchema,
   updateCustomerSchema,
 } from "../validators/user.validator.ts";
 import { z } from "npm:zod";
@@ -53,7 +54,7 @@ customerRouter.get(
         description: "List of customers with pagination metadata",
         content: {
           "application/json": {
-            schema: resolver(customerSchema), //schema: customerSchema,
+            schema: resolver(customersPaginationSchema), //schema: customerSchema,
           },
         },
       },
