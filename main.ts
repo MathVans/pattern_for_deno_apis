@@ -6,7 +6,7 @@ import { cors } from "hono/cors";
 import { openAPISpecs } from "npm:hono-openapi";
 import { apiReference } from "@scalar/hono-api-reference";
 import { errorMiddleware } from "./src/utils/error-handler.ts";
-import { swaggerConfig } from "./infrastructure/config/swagger.ts";
+import { customCss, swaggerConfig } from "./infrastructure/config/swagger.ts";
 import { logger } from "hono/logger";
 import customerRouter from "./src/api/routes/user.router.ts";
 import path from "node:path";
@@ -27,14 +27,6 @@ app.get("/logo.png", async (c) => {
   return serveFile(c.req.raw, "./src/assets/logo.png");
 });
 
-// Rota para servir arquivos estáticos
-app.get("/static/*", async (c) => {
-  return serveDir(c.req.raw, {
-    fsRoot: "public",
-    urlRoot: "static",
-  });
-});
-
 // Routes - fixed with the correct method
 app.route("/customers", customerRouter);
 
@@ -44,15 +36,11 @@ app.get("/openapi", openAPISpecs(app, swaggerConfig));
 app.get(
   "/docs",
   apiReference({
-    theme: "mars", //moon, saturn, jupiter, moon, deepSpace, mars.
-    spec: { url: "/openapi" },
+    // Caminho para o CSS personalizado
+    customCss: customCss,
+    theme: "elysiajs", //moon, saturn, jupiter, moon, deepSpace, mars.
+    url: "/openapi",
     // layout: "classic",
-    configuration: {
-      logo: {
-        url: "./src/assets/logo.png",
-        altText: "Logo da Empresa",
-      },
-    },
   }),
 );
 

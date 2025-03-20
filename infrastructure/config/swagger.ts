@@ -1,6 +1,5 @@
 export const swaggerConfig = {
   documentation: {
-    
     info: {
       title: "Pattern for Typescript API with Deno, Hono and Drizzle",
       version: "1.0.0",
@@ -29,3 +28,7 @@ export const swaggerConfig = {
     ],
   },
 };
+
+export const customCss = await Deno.readTextFileSync(
+  "./static/custom-styles.css",
+);
