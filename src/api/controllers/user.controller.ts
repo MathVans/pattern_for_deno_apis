@@ -21,6 +21,10 @@ export class CustomerController {
   // Get all customers with pagination
   getAllCustomers = async (c: Context) => {
     try {
+      console.log(
+        `🚀 ~ CustomerController ~ getAllCustomers= ~ c.get("User"):`,
+        c.get("User"),
+      );
       // Parse pagination parameters
       const page = parseInt(c.req.query("page") || "1");
       const limit = parseInt(c.req.query("limit") || "10");

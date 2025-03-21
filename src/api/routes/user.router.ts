@@ -9,7 +9,6 @@ import {
   customersPaginationSchema,
   updateCustomerSchema,
 } from "../validators/user.validator.ts";
-import { z } from "npm:zod";
 import { internalErrorSchema } from "../validators/error.validator.ts";
 import "zod-openapi/extend";
 
@@ -62,7 +61,7 @@ customerRouter.get(
         description: "Server error",
         content: {
           "application/json": {
-            schema: internalErrorSchema,
+            schema: resolver(internalErrorSchema),
           },
         },
       },

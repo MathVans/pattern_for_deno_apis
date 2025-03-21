@@ -32,6 +32,7 @@ export const customerRelations = relations(customerTable, ({ many, one }) => ({
 
 export type customer = typeof customerTable.$inferSelect;
 export type newCustomer = typeof customerTable.$inferInsert;
+export type customerToken = { uuid: string; role: string };
 export type customerInfo = customer & { addresses: address[]; role: role };
 export type updateCustomer = Partial<
   Omit<customer, "uuid" | "createdAt" | "updatedAt">
