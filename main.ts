@@ -1,45 +1,86 @@
 import { Hono } from "npm:hono";
+import { getConnInfo } from "npm:hono/deno";
 import { load } from "@std/dotenv";
-import { serveFile } from "jsr:@std/http/file-server";
-import { prettyJSON } from "hono/pretty-json";
+import { prettyJSON } from "npm:hono/pretty-json";
 import { cors } from "hono/cors";
+import { logger } from "hono/logger";
 import { openAPISpecs } from "npm:hono-openapi";
 import { apiReference } from "@scalar/hono-api-reference";
 import { errorMiddleware } from "./src/utils/error-handler.ts";
 import { customCss, swaggerConfig } from "./infrastructure/config/swagger.ts";
-import { logger } from "hono/logger";
 import router from "./src/api/routes/index.ts";
 
-// Load environment variables
+// Carregar variáveis de ambiente
 await load({ export: true });
 
+// Criar aplicação principal
 const app = new Hono();
 
-//Global Middleware
+// ---------- Middlewares Globais ----------
 app.use("*", errorMiddleware());
 app.use(prettyJSON());
-app.use("/*", cors());
+app.use(
+  "/*",
+  cors({
+    origin: ["http://localhost:8000", "https://seu-frontend.com"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    exposeHeaders: ["Content-Length"],
+    maxAge: 600,
+    credentials: true,
+  }),
+);
 app.use(logger());
 
-app.route("/", router);
+// ---------- Rotas Públicas da Aplicação Principal ----------
 
-// Rota para servir o logo
-app.get("/logo.png", (c) => {
-  return serveFile(c.req.raw, "./src/assets/logo.png");
+// Rota raiz informativa
+app.get("/", (c) => {
+  const info = getConnInfo(c);
+  return c.json({
+    message: "Bem-vindo à API Deno com Hono e Drizzle",
+    clientIp: info.remote.address,
+    documentation: "/docs",
+    version: "1.0.0",
+  });
 });
 
-// Load OpenAPI specs
+// ---------- Documentação OpenAPI ----------
+
+// Servir especificação OpenAPI
 app.get("/openapi", openAPISpecs(app, swaggerConfig));
 
+// Interface de documentação Scalar
 app.get(
   "/docs",
   apiReference({
-    // Caminho para o CSS personalizado
     customCss: customCss,
-    theme: "elysiajs", //moon, saturn, jupiter, moon, deepSpace, mars.
+    theme: "mars", // Outras opções: moon, saturn, jupiter, elysiajs, mars,deepSpace
     url: "/openapi",
-    // layout: "classic",
+    layout: "modern",
   }),
 );
 
-Deno.serve(app.fetch);
+// ---------- Montagem do Roteador Principal ----------
+
+// Montar o roteador principal na aplicação
+app.route("", router);
+
+// ---------- Inicialização do Servidor ----------
+
+// Mostrar rotas disponíveis em modo de desenvolvimento
+if (Deno.env.get("NODE_ENV") !== "production") {
+  console.log("\n📝 Rotas disponíveis:");
+
+  const showRoutes = (await import("npm:hono/dev")).showRoutes;
+  showRoutes(app, {
+    verbose: true,
+    colorize: true,
+  });
+}
+
+// Iniciar o servidor
+const port = parseInt(Deno.env.get("PORT") || "8000");
+console.log(`\n🚀 Servidor iniciado em http://localhost:${port}`);
+
+Deno.serve({ port }, app.fetch);

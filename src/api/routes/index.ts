@@ -1,26 +1,52 @@
-import { customerToken } from "../../../infrastructure/database/schemas/customer.ts";
-import { authMiddleware } from "../middlewares/auth.ts";
+import { Context, Hono, Next } from "npm:hono";
 import customerRouter from "./user.router.ts";
-import { Hono } from "npm:hono";
+import type { customerToken } from "../../../infrastructure/database/schemas/customer.ts";
+import { requireAdmin, requireRole, verifyJWT } from "../middlewares/jwt.ts";
 
+// Tipos para as variáveis no contexto
 type Variables = {
-  User: customerToken;
+  jwtPayload: {
+    uuid: string;
+    role: string;
+    exp: number;
+  };
+  user: customerToken;
 };
 
-// Criar um roteador principal
-const router = new Hono();
+// Criar roteador principal
+const router = new Hono<{ Variables: Variables }>();
 
-// Rotas não protegidas
-const unprotectedRoutes = new Hono<{ Variables: Variables }>();
-unprotectedRoutes.route("/login", customerRouter);
+// Fallback para rotas não-autenticadas
+const publicFallback = async (c: Context, next: Next) => {
+  c.set("user", { uuid: "", role: "public" });
+  await next();
+};
 
-// Rotas protegidas
-const protectedRoutes = new Hono<{ Variables: Variables }>();
-protectedRoutes.use("*", authMiddleware);
-protectedRoutes.route("/customers", customerRouter);
+// ---------- Definição de grupos de rotas ----------
 
-// Roteamento principal
-router.route("/", unprotectedRoutes);
-router.route("/", protectedRoutes);
+// 1. Rotas públicas (sem autenticação)
+const publicRoutes = new Hono();
+publicRoutes.get("/health", publicFallback, (c) => c.json({ status: "ok" }));
+publicRoutes.get(
+  "/login",
+  publicFallback,
+  (c) => c.json({ token: "dummy-token" }),
+);
+publicRoutes.route("/customers", customerRouter);
+
+// 2. Rotas que precisam apenas de autenticação (qualquer usuário)
+const authenticatedRoutes = new Hono<{ Variables: Variables }>();
+authenticatedRoutes.use("*", verifyJWT); // Usando o middleware do arquivo jwt.ts
+// authenticatedRoutes.route("/customers", customerRouter);
+
+// 3. Rotas que exigem permissão de admin
+const adminRoutes = new Hono<{ Variables: Variables }>();
+adminRoutes.use("*", verifyJWT, requireAdmin); // Usando os middlewares combinados do arquivo jwt.ts
+adminRoutes.get("/admin/dashboard", (c) => c.json({ admin: true }));
+
+// Montar grupos no roteador principal
+router.route("/api/public", publicRoutes);
+router.route("/api", authenticatedRoutes);
+router.route("/api", adminRoutes);
 
 export default router;

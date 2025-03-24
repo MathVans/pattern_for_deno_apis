@@ -1,6 +1,6 @@
 import { Hono } from "npm:hono";
 import { describeRoute } from "npm:hono-openapi";
-import { resolver } from "npm:hono-openapi/zod";
+import { resolver, validator } from "npm:hono-openapi/zod";
 import { CustomerController } from "../controllers/user.controller.ts";
 import {
   createCustomerSchema,
@@ -9,7 +9,12 @@ import {
   customersPaginationSchema,
   updateCustomerSchema,
 } from "../validators/user.validator.ts";
-import { internalErrorSchema } from "../validators/error.validator.ts";
+import {
+  badRequestErrorSchema,
+  conflictErrorSchema,
+  internalErrorSchema,
+  notFoundErrorSchema,
+} from "../validators/error.validator.ts";
 import "zod-openapi/extend";
 
 // Create a router for customer endpoints
@@ -71,129 +76,109 @@ customerRouter.get(
 );
 
 // // Get customer by ID
-// customerRouter.get(
-//   "/:id",
-//   describeRoute({
-//     tags: ["Customers"],
-//     summary: "Get customer details",
-//     description: "Retrieve a single customer by UUID with addresses",
-//     parameters: [
-//       {
-//         name: "id",
-//         in: "path",
-//         description: "Customer UUID",
-//         required: true,
-//         schema: {
-//           type: "string",
-//           format: "uuid",
-//         },
-//       },
-//     ],
-//     responses: {
-//       200: {
-//         description: "Customer found",
-//         content: {
-//           "application/json": {
-//             schema: customerInfoSchema,
-//           },
-//         },
-//       },
-//       404: {
-//         description: "Customer not found",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//               status: resolver.number(),
-//             }),
-//           },
-//         },
-//       },
-//       500: {
-//         description: "Server error",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//               details: resolver.any().optional(),
-//               status: resolver.number(),
-//             }),
-//           },
-//         },
-//       },
-//     },
-//   }),
-//   customerController.getCustomerById,
-// );
+customerRouter.get(
+  "/:id",
+  describeRoute({
+    tags: ["Customers"],
+    summary: "Get customer details",
+    description: "Retrieve all customer information by UUID.",
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        description: "Customer UUID",
+        required: true,
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
+    responses: {
+      200: {
+        description: "Customer found",
+        content: {
+          "application/json": {
+            schema: resolver(customerInfoSchema),
+          },
+        },
+      },
+      404: {
+        description: "Customer not found",
+        content: {
+          "application/json": {
+            schema: resolver(notFoundErrorSchema),
+          },
+        },
+      },
+      500: {
+        description: "Server error",
+        content: {
+          "application/json": {
+            schema: resolver(internalErrorSchema),
+          },
+        },
+      },
+    },
+  }),
+  customerController.getCustomerById,
+);
 
-// // Create customer
-// customerRouter.post(
-//   "/",
-//   describeRoute({
-//     tags: ["Customers"],
-//     summary: "Create a new customer",
-//     description: "Create a new customer with validation",
-//     requestBody: {
-//       description: "Customer data",
-//       required: true,
-//       content: {
-//         "application/json": {
-//           schema: resolver(createCustomerSchema),
-//         },
-//       },
-//     },
-//     responses: {
-//       201: {
-//         description: "Customer created successfully",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               data: customerSchema,
-//             }),
-//           },
-//         },
-//       },
-//       400: {
-//         description: "Invalid input data",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//               details: resolver.any().optional(),
-//             }),
-//           },
-//         },
-//       },
-//       409: {
-//         description: "Email already in use",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//             }),
-//           },
-//         },
-//       },
-//       500: {
-//         description: "Server error",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//               details: resolver.any().optional(),
-//             }),
-//           },
-//         },
-//       },
-//     },
-//   }),
-//   customerController.createCustomer,
-// );
+// Create customer
+customerRouter.post(
+  "/",
+  describeRoute({
+    tags: ["Customers"],
+    summary: "Create a new customer",
+    description: "Create a new customer with validation",
+    requestBody: {
+      description: "Customer data",
+      required: true,
+      content: {
+        "application/json": {
+          schema: resolver(createCustomerSchema),
+        },
+      },
+    },
+    responses: {
+      201: {
+        description: "Customer created successfully",
+        content: {
+          "application/json": {
+            schema: resolver(customerSchema),
+          },
+        },
+      },
+      400: {
+        description: "Invalid input data",
+        content: {
+          "application/json": {
+            schema: resolver(badRequestErrorSchema),
+          },
+        },
+      },
+      409: {
+        description: "Email already in use",
+        content: {
+          "application/json": {
+            schema: resolver(conflictErrorSchema),
+          },
+        },
+      },
+      500: {
+        description: "Server error",
+        content: {
+          "application/json": {
+            schema: resolver(internalErrorSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("json", createCustomerSchema),
+  // customerController.createCustomer,
+  return c.req.valid("json")
+);
 
 // // Update customer
 // customerRouter.put(

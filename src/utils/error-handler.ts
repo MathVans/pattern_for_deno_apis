@@ -1,4 +1,3 @@
-import { stat } from "node:fs";
 import { Context } from "npm:hono";
 import { z } from "zod";
 
@@ -44,6 +43,10 @@ export class ApiError extends Error {
     return new ApiError(message, ErrorCode.UNAUTHORIZED, 401);
   }
 
+  static forbidden(message: string): ApiError {
+    return new ApiError(message, ErrorCode.UNAUTHORIZED, 403);
+  }
+
   static notFound(message: string): ApiError {
     return new ApiError(message, ErrorCode.NOT_FOUND, 404);
   }
@@ -59,30 +62,6 @@ export class ApiError extends Error {
   static internal(message: string = "Internal server error"): ApiError {
     return new ApiError(message, ErrorCode.INTERNAL, 500);
   }
-}
-
-/**
- * Map business errors to appropriate HTTP errors
- */
-export function mapBusinessError(error: Error): ApiError {
-  // Common business error messages to map to specific HTTP errors
-  if (error.message === "Customer not found") {
-    return ApiError.notFound(error.message);
-  }
-
-  if (
-    error.message === "Email already in use" ||
-    error.message === "Email already in use by another customer"
-  ) {
-    return ApiError.conflict(error.message);
-  }
-
-  if (error.message === "Credit limit cannot be negative") {
-    return ApiError.badRequest(error.message);
-  }
-
-  // Default to internal server error
-  return ApiError.internal(error.message);
 }
 
 /**
@@ -109,18 +88,6 @@ export function handleError(c: Context, error: unknown): Response {
       details: error.format(),
     }, 422);
   }
-
-  // Handle standard Error
-  if (error instanceof Error) {
-    const apiError = mapBusinessError(error);
-    return c.json({
-      code: apiError.code,
-      message: apiError.message,
-      details: apiError.details,
-      status: apiError.status,
-    });
-  }
-
   // Handle unknown errors
   return c.json({
     code: ErrorCode.INTERNAL,
@@ -137,23 +104,6 @@ export function errorMiddleware() {
       await next();
     } catch (error) {
       return handleError(c, error);
-    }
-  };
-}
-
-/**
- * Try-catch wrapper for controller methods
- */
-export function safeFn<T extends unknown[], R>(
-  fn: (...args: T) => Promise<R>,
-): (...args: T) => Promise<R> {
-  return async (...args: T) => {
-    try {
-      return await fn(...args);
-    } catch (error) {
-      throw error instanceof ApiError
-        ? error
-        : mapBusinessError(error as Error);
     }
   };
 }

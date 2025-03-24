@@ -1,15 +1,7 @@
-import { Context } from "npm:hono";
-import { describeRoute } from "npm:hono-openapi";
-import { resolver, validator as zValidator } from "npm:hono-openapi/zod";
-import { z } from "npm:zod";
+import { Context } from "hono";
 import { CustomerService } from "../../application/services/customer.service.ts";
 import { ApiError, handleError } from "../../utils/error-handler.ts";
-import {
-  createCustomerSchema,
-  customerInfoSchema,
-  customerSchema,
-  updateCustomerSchema,
-} from "../validators/user.validator.ts";
+import { updateCustomerSchema } from "../validators/user.validator.ts";
 
 export class CustomerController {
   private customerService: CustomerService;
@@ -21,11 +13,6 @@ export class CustomerController {
   // Get all customers with pagination
   getAllCustomers = async (c: Context) => {
     try {
-      console.log(
-        `🚀 ~ CustomerController ~ getAllCustomers= ~ c.get("User"):`,
-        c.get("User"),
-      );
-      // Parse pagination parameters
       const page = parseInt(c.req.query("page") || "1");
       const limit = parseInt(c.req.query("limit") || "10");
 
@@ -55,9 +42,8 @@ export class CustomerController {
 
   createCustomer = async (c: Context) => {
     try {
-      // Parse manually with the schema
-      const body = await c.req.json();
-      const validatedData = createCustomerSchema.parse(body);
+      // Get pre-validated data from the validator middleware
+      const validatedData = c.req.valid("json") as newCustomer;
 
       // Use validated data with service
       const result = await this.customerService.createCustomer(validatedData);
