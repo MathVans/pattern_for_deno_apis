@@ -68,13 +68,13 @@ app.route("", router);
 
 // Mostrar rotas disponíveis em modo de desenvolvimento
 if (Deno.env.get("NODE_ENV") !== "production") {
-  console.log("\n📝 Rotas disponíveis:");
+  // console.log("\n📝 Rotas disponíveis:");
 
-  const showRoutes = (await import("npm:hono/dev")).showRoutes;
-  showRoutes(app, {
-    verbose: true,
-    colorize: true,
-  });
+  // const showRoutes = (await import("npm:hono/dev")).showRoutes;
+  // showRoutes(app, {
+  //   verbose: true,
+  //   colorize: true,
+  // });
 }
 
 // Iniciar o servidor

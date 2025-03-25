@@ -46,8 +46,7 @@ export class UserController {
   createUser = async (c: Context) => {
     try {
       const body = await c.req.json();
-      const validatedData = createUserSchema.parse(body);
-      const result = await this.userService.createUser(validatedData);
+      const result = await this.userService.createUser(body);
 
       return c.json({ data: result }, 201);
     } catch (error) {
@@ -60,11 +59,10 @@ export class UserController {
     try {
       const { id } = c.req.param();
       const body = await c.req.json();
-      const validatedData = updateUserSchema.parse(body);
 
       const result = await this.userService.updateUser(
         id,
-        validatedData,
+        body,
       );
 
       if (!result) {

@@ -15,10 +15,10 @@ export const userSchema = baseUserSchema.extend({}).openapi({
 export const createUserSchema = baseNewUserSchema.omit({ uuid: true })
   .extend({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
+    middleName: z.string().optional().nullable(),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
     email: z.string().email("Invalid email format"),
     roleId: z.number().int().positive(),
-    middleName: z.string().optional().nullable(),
     creditLimit: z.number().optional().default(0)
       .transform((val) => val !== undefined ? String(val) : undefined),
     phone: z.string().optional().nullable(),
@@ -29,18 +29,23 @@ export const createUserSchema = baseNewUserSchema.omit({ uuid: true })
     description: "Schema for creating a new user",
     example: {
       firstName: "John",
+      middleName: "Smith",
       lastName: "Doe",
       email: "john.doe@example.com",
       roleId: 1,
-      middleName: "Smith",
       creditLimit: 1000,
       phone: "+1234567890",
     },
   });
 
-export const updateUserSchema = baseNewUserSchema.partial().openapi({
-  ref: "UpdateUser",
-});
+export const updateUserSchema = baseNewUserSchema.partial().omit({
+  uuid: true,
+  createdAt: true,
+  updatedAt: true,
+})
+  .openapi({
+    ref: "UpdateUser",
+  });
 
 // Schema for response with user and addresses
 export const userInfoSchema = userSchema.extend({
@@ -72,4 +77,27 @@ export const usersPaginationSchema = z.object({
     limit: z.number(),
     pages: z.number(),
   }),
-}).openapi({ ref: "UsersPagination" });
+}).openapi({
+  ref: "UsersPagination",
+  description: "List of users with pagination metadata",
+});
+
+export const hasCreditSchema = z.object({
+  hasCredit: z.boolean(),
+}).openapi({
+  ref: "HasCredit",
+  description: "Check if user has enough credit to deduct amount",
+  example: { hasCredit: true },
+});
+
+export const creditLimitSchema = z.object({
+  creditLimit: z.number(),
+}).openapi({ ref: "CreditLimit", example: { creditLimit: 1000 } });
+
+export const amountSchema = z.object({
+  amount: z.number().positive(),
+}).openapi({
+  ref: "Amount",
+  description: "Amount to deduct from user credit",
+  example: { amount: 100 },
+});

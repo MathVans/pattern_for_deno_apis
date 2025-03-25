@@ -3,17 +3,21 @@ import { describeRoute } from "npm:hono-openapi";
 import { resolver, validator } from "npm:hono-openapi/zod";
 import { UserController } from "../controllers/user.controller.ts";
 import {
+  amountSchema,
   createUserSchema,
+  hasCreditSchema,
   updateUserSchema,
   userInfoSchema,
   userSchema,
   usersPaginationSchema,
 } from "../validators/user.validator.ts";
+import { emptySuccessResponseSchema } from "./../validators/utils.validator.ts";
 import {
   badRequestErrorSchema,
   conflictErrorSchema,
   internalErrorSchema,
   notFoundErrorSchema,
+  validationErrorSchema,
 } from "../validators/error.validator.ts";
 import "zod-openapi/extend";
 
@@ -136,7 +140,7 @@ userRouter.post(
       required: true,
       content: {
         "application/json": {
-          schema: resolver(createUserSchema),
+          schema: "CreateUser",
         },
       },
     },
@@ -179,190 +183,214 @@ userRouter.post(
   userController.createUser,
 );
 
-// // Update user
-// userRouter.put(
-//   "/:id",
-//   describeRoute({
-//     tags: ["Users"],
-//     summary: "Update user",
-//     description: "Update an existing user with validation",
-//     parameters: [
-//       {
-//         name: "id",
-//         in: "path",
-//         description: "User UUID",
-//         required: true,
-//         schema: {
-//           type: "string",
-//           format: "uuid",
-//         },
-//       },
-//     ],
-//     requestBody: {
-//       description: "User data to update",
-//       required: true,
-//       content: {
-//         "application/json": {
-//           schema: resolver(updateUserSchema),
-//         },
-//       },
-//     },
-//     responses: {
-//       200: {
-//         description: "User updated successfully",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               data: userSchema,
-//             }),
-//           },
-//         },
-//       },
-//       400: {
-//         description: "Invalid input data",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//               details: resolver.any().optional(),
-//             }),
-//           },
-//         },
-//       },
-//       404: {
-//         description: "User not found",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//             }),
-//           },
-//         },
-//       },
-//       409: {
-//         description: "Email already in use",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//             }),
-//           },
-//         },
-//       },
-//     },
-//   }),
-//   userController.updateUser,
-// );
+// Update user
+userRouter.put(
+  "/:id",
+  describeRoute({
+    tags: ["Users"],
+    summary: "Update user",
+    description: "Update an existing user with validation",
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        description: "User UUID",
+        required: true,
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
+    requestBody: {
+      description: "User data to update",
+      required: true,
+      content: {
+        "application/json": {
+          schema: resolver(updateUserSchema),
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "User updated successfully",
+        content: {
+          "application/json": {
+            schema: resolver(userSchema),
+          },
+        },
+      },
+      400: {
+        description: "Invalid input data",
+        content: {
+          "application/json": {
+            schema: resolver(badRequestErrorSchema),
+          },
+        },
+      },
+      404: {
+        description: "User not found",
+        content: {
+          "application/json": {
+            schema: resolver(notFoundErrorSchema),
+          },
+        },
+      },
+      409: {
+        description: "Email already in use",
+        content: {
+          "application/json": {
+            schema: resolver(validationErrorSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("json", updateUserSchema),
+  userController.updateUser,
+);
 
-// // Delete user
-// userRouter.delete(
-//   "/:id",
-//   describeRoute({
-//     tags: ["Users"],
-//     summary: "Delete user",
-//     description: "Delete a user by UUID",
-//     parameters: [
-//       {
-//         name: "id",
-//         in: "path",
-//         description: "User UUID",
-//         required: true,
-//         schema: {
-//           type: "string",
-//           format: "uuid",
-//         },
-//       },
-//     ],
-//     responses: {
-//       200: {
-//         description: "User deleted successfully",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               success: resolver.boolean(),
-//               message: resolver.string(),
-//             }),
-//           },
-//         },
-//       },
-//       404: {
-//         description: "User not found",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//             }),
-//           },
-//         },
-//       },
-//     },
-//   }),
-//   userController.deleteUser,
-// );
+// Delete user
+userRouter.delete(
+  "/:id",
+  describeRoute({
+    tags: ["Users"],
+    summary: "Delete user",
+    description: "Delete a user by UUID",
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        description: "User UUID",
+        required: true,
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
+    responses: {
+      200: {
+        description: "User deleted successfully",
+        content: {
+          "application/json": {
+            schema: resolver(emptySuccessResponseSchema),
+          },
+        },
+      },
+      404: {
+        description: "User not found",
+        content: {
+          "application/json": {
+            schema: resolver(notFoundErrorSchema),
+          },
+        },
+      },
+    },
+  }),
+  userController.deleteUser,
+);
 
-// // Check user credit
-// userRouter.post(
-//   "/:id/check-credit",
-//   describeRoute({
-//     tags: ["Users"],
-//     summary: "Check user credit",
-//     description:
-//       "Check if a user has sufficient credit for a specific amount",
-//     parameters: [
-//       {
-//         name: "id",
-//         in: "path",
-//         description: "User UUID",
-//         required: true,
-//         schema: {
-//           type: "string",
-//           format: "uuid",
-//         },
-//       },
-//     ],
-//     requestBody: {
-//       description: "Amount to check",
-//       required: true,
-//       content: {
-//         "application/json": {
-//           schema: resolver(
-//             z.object({
-//               amount: z.number().positive(),
-//             }),
-//           ),
-//         },
-//       },
-//     },
-//     responses: {
-//       200: {
-//         description: "Credit check result",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               hasCredit: resolver.boolean(),
-//               message: resolver.string(),
-//             }),
-//           },
-//         },
-//       },
-//       400: {
-//         description: "Invalid amount",
-//         content: {
-//           "application/json": {
-//             schema: resolver({
-//               code: resolver.string(),
-//               message: resolver.string(),
-//             }),
-//           },
-//         },
-//       },
-//     },
-//   }),
-//   userController.checkUserCredit,
-// );
+// Check user credit
+userRouter.post(
+  "/:id/check-credit",
+  describeRoute({
+    tags: ["Users"],
+    summary: "Check user credit",
+    description: "Check if a user has sufficient credit for a specific amount",
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        description: "User UUID",
+        required: true,
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
+    requestBody: {
+      description: "Amount to check",
+      required: true,
+      content: {
+        "application/json": {
+          schema: resolver(amountSchema),
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Credit check result",
+        content: {
+          "application/json": {
+            schema: resolver(hasCreditSchema),
+          },
+        },
+      },
+      400: {
+        description: "Invalid amount",
+        content: {
+          "application/json": {
+            schema: resolver(badRequestErrorSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("json", amountSchema),
+  userController.checkUserCredit,
+);
+
+// Deduct user credit
+userRouter.post(
+  "/:id/deduct-credit",
+  describeRoute({
+    tags: ["Users"],
+    summary: "Deduct user credit",
+    description: "Deduct a specific amount from a user's credit",
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        description: "User UUID",
+        required: true,
+        schema: {
+          type: "string",
+          format: "uuid",
+        },
+      },
+    ],
+    requestBody: {
+      description: "Amount to deduct",
+      required: true,
+      content: {
+        "application/json": {
+          schema: resolver(amountSchema),
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Credit deducted successfully",
+        content: {
+          "application/json": {
+            schema: resolver(emptySuccessResponseSchema),
+          },
+        },
+      },
+      400: {
+        description: "Invalid amount",
+        content: {
+          "application/json": {
+            schema: resolver(badRequestErrorSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("json", amountSchema),
+  userController.deductUserCredit,
+);
 
 export default userRouter;

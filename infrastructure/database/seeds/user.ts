@@ -1,7 +1,7 @@
 import { load } from "@std/dotenv";
 import { db } from "../db.ts";
 import { roleTable } from "../schemas/role.ts";
-import { customerTable } from "../schemas/user.ts";
+import { userTable } from "../schemas/user.ts";
 import { addressTable } from "../schemas/address.ts";
 
 // Load environment variables
@@ -34,21 +34,21 @@ async function seedRoles() {
 }
 
 /**
- * Seed customer data
+ * Seed user data
  */
-async function seedCustomers() {
-  console.log("🌱 Seeding customers...");
+async function seedusers() {
+  console.log("🌱 Seeding users...");
   
-  // Verificar se já existem customers
-  const existingCustomers = await db.select().from(customerTable);
+  // Verificar se já existem users
+  const existingusers = await db.select().from(userTable);
   
-  if (existingCustomers.length > 0) {
-    console.log("✓ Customers already seeded, skipping.");
-    return existingCustomers;
+  if (existingusers.length > 0) {
+    console.log("✓ users already seeded, skipping.");
+    return existingusers;
   }
   
   // Inserir clientes com referências às roles
-  const customers = await db.insert(customerTable)
+  const users = await db.insert(userTable)
     .values([
       {
         firstName: "John",
@@ -78,14 +78,14 @@ async function seedCustomers() {
     ])
     .returning();
   
-  console.log(`✅ ${customers.length} customers seeded successfully!`);
-  return customers;
+  console.log(`✅ ${users.length} users seeded successfully!`);
+  return users;
 }
 
 /**
  * Seed address data
  */
-async function seedAddresses(customers: typeof customerTable.$inferSelect[]) {
+async function seedAddresses(users: typeof userTable.$inferSelect[]) {
   console.log("🌱 Seeding addresses...");
   
   // Verificar se já existem addresses
@@ -100,7 +100,7 @@ async function seedAddresses(customers: typeof customerTable.$inferSelect[]) {
   const addressesToInsert: typeof addressTable.$inferInsert[] = [];
   
   // Adicionar endereços para cada cliente
-  for (const customer of customers) {
+  for (const user of users) {
     // Endereço principal para todos os clientes
     addressesToInsert.push({
       street: `${Math.floor(Math.random() * 1000) + 1} Main Street`,
@@ -108,7 +108,7 @@ async function seedAddresses(customers: typeof customerTable.$inferSelect[]) {
       state: "NY",
       zipCode: "10001",
       country: "USA",
-      customerId: customer.uuid
+      userId: user.uuid
     });
     
     // Segundo endereço para alguns clientes (50% de chance)
@@ -119,7 +119,7 @@ async function seedAddresses(customers: typeof customerTable.$inferSelect[]) {
         state: "CA",
         zipCode: "90001",
         country: "USA",
-        customerId: customer.uuid
+        userId: user.uuid
       });
     }
   }
@@ -141,8 +141,8 @@ async function main() {
     
     // Executar seeds na ordem correta (respeitando chaves estrangeiras)
     await seedRoles();
-    const customers = await seedCustomers();
-    await seedAddresses(customers);
+    const users = await seedusers();
+    await seedAddresses(users);
     
     console.log("✨ Database seeded successfully!");
   } catch (error) {
@@ -156,4 +156,4 @@ if (import.meta.main) {
 }
 
 // Exportar as funções para uso em outros módulos se necessário
-export { seedRoles, seedCustomers, seedAddresses };
+export { seedRoles, seedusers, seedAddresses };
