@@ -82,12 +82,15 @@ export function handleError(c: Context, error: unknown): Response {
 
   // Handle Zod validation errors
   if (error instanceof z.ZodError) {
+    console.log("🚀 ~ handleError ~ error:", error);
     return c.json({
       code: ErrorCode.VALIDATION,
       message: "Validation failed",
       details: error.format(),
+      status: 422,
     }, 422);
   }
+
   // Handle unknown errors
   return c.json({
     code: ErrorCode.INTERNAL,

@@ -45,10 +45,8 @@ export class CustomerController {
 
   createCustomer = async (c: Context) => {
     try {
-      // Get pre-validated data from the validator middleware
       const body = await c.req.json();
       const validatedData = createCustomerSchema.parse(body);
-      // Use validated data with service
       const result = await this.customerService.createCustomer(validatedData);
 
       return c.json({ data: result }, 201);

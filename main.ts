@@ -31,7 +31,7 @@ app.use(
   }),
 );
 app.use(logger());
-
+app.use(errorMiddleware());
 // ---------- Rotas Públicas da Aplicação Principal ----------
 
 // Rota raiz informativa
@@ -62,8 +62,6 @@ app.get(
 );
 
 // ---------- Montagem do Roteador Principal ----------
-
-// Montar o roteador principal na aplicação
 app.route("", router);
 
 // ---------- Inicialização do Servidor ----------
@@ -81,6 +79,5 @@ if (Deno.env.get("NODE_ENV") !== "production") {
 
 // Iniciar o servidor
 const port = parseInt(Deno.env.get("PORT") || "8000");
-console.log(`\n🚀 Servidor iniciado em http://localhost:${port}`);
 
 Deno.serve({ port }, app.fetch);
