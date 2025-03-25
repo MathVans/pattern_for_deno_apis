@@ -1,24 +1,19 @@
 import { db } from "../db.ts";
-import { customerTable } from "../schemas/customer.ts";
-import type {
-  customer,
-  customerInfo,
-  newCustomer,
-  updateCustomer,
-} from "../schemas/customer.ts";
+import { userTable } from "../schemas/user.ts";
+import type { newUser, updateUser, user, userInfo } from "../schemas/user.ts";
 import { asc, eq, sql } from "drizzle-orm";
 
 // Interface que define o contrato do repositório
-export interface ICustomerRepository {
-  findAll(): Promise<customerInfo[]>;
-  findById(uuid: string): Promise<customer | undefined>;
-  findByEmail(email: string): Promise<customer | undefined>;
-  create(data: newCustomer): Promise<customer>;
-  update(uuid: string, data: updateCustomer): Promise<customer | undefined>;
+export interface IUserRepository {
+  findAll(): Promise<userInfo[]>;
+  findById(uuid: string): Promise<user | undefined>;
+  findByEmail(email: string): Promise<user | undefined>;
+  create(data: newUser): Promise<user>;
+  update(uuid: string, data: updateUser): Promise<user | undefined>;
   delete(uuid: string): Promise<boolean>;
-  findWithAddresses(uuid: string): Promise<customerInfo | undefined>;
+  findWithAddresses(uuid: string): Promise<userInfo | undefined>;
   findPaginated(page: number, limit: number): Promise<{
-    data: customer[];
+    data: user[];
     pagination: {
       total: number;
       page: number;
@@ -29,27 +24,27 @@ export interface ICustomerRepository {
 }
 
 // Implementação concreta do repositório
-export class CustomerRepository implements ICustomerRepository {
+export class UserRepository implements IUserRepository {
   /**
    * Retorna todos os clientes
    */
-  async findAll(): Promise<customerInfo[]> {
+  async findAll(): Promise<userInfo[]> {
     // Use the query API with relations instead of manual joins
-    const customers = await db.query.customers.findMany({
+    const users = await db.query.users.findMany({
       with: {
         addresses: true,
         role: true,
       },
     });
-    return customers;
+    return users;
   }
 
   /**
    * Busca um cliente pelo UUID
    */
-  async findById(uuid: string): Promise<customer | undefined> {
-    const result = await db.query.customers.findFirst({
-      where: (customers, { eq }) => (eq(customers.uuid, uuid)),
+  async findById(uuid: string): Promise<user | undefined> {
+    const result = await db.query.users.findFirst({
+      where: (users, { eq }) => (eq(users.uuid, uuid)),
       with: {
         addresses: true,
         role: true,
@@ -62,10 +57,10 @@ export class CustomerRepository implements ICustomerRepository {
   /**
    * Busca um cliente pelo email
    */
-  async findByEmail(email: string): Promise<customer | undefined> {
+  async findByEmail(email: string): Promise<user | undefined> {
     const [result] = await db.select()
-      .from(customerTable)
-      .where(eq(customerTable.email, email))
+      .from(userTable)
+      .where(eq(userTable.email, email))
       .limit(1);
 
     return result;
@@ -74,8 +69,8 @@ export class CustomerRepository implements ICustomerRepository {
   /**
    * Cria um novo cliente
    */
-  async create(data: newCustomer): Promise<customer> {
-    const [result] = await db.insert(customerTable)
+  async create(data: newUser): Promise<user> {
+    const [result] = await db.insert(userTable)
       .values(data)
       .returning();
 
@@ -87,14 +82,14 @@ export class CustomerRepository implements ICustomerRepository {
    */
   async update(
     uuid: string,
-    data: updateCustomer,
-  ): Promise<customer | undefined> {
-    const [result] = await db.update(customerTable)
+    data: updateUser,
+  ): Promise<user | undefined> {
+    const [result] = await db.update(userTable)
       .set({
         ...data,
         updatedAt: new Date(),
       })
-      .where(eq(customerTable.uuid, uuid))
+      .where(eq(userTable.uuid, uuid))
       .returning();
 
     return result;
@@ -104,29 +99,29 @@ export class CustomerRepository implements ICustomerRepository {
    * Remove um cliente pelo UUID
    */
   async delete(uuid: string): Promise<boolean> {
-    const [result] = await db.delete(customerTable)
-      .where(eq(customerTable.uuid, uuid))
+    const [result] = await db.delete(userTable)
+      .where(eq(userTable.uuid, uuid))
       .returning();
 
     return !!result;
   }
 
-  async findWithAddresses(uuid: string): Promise<customerInfo | undefined> {
-    const customer = await db.query.customers.findFirst({
-      where: (customer, { eq }) => (eq(customer.uuid, uuid)),
+  async findWithAddresses(uuid: string): Promise<userInfo | undefined> {
+    const user = await db.query.users.findFirst({
+      where: (user, { eq }) => (eq(user.uuid, uuid)),
       with: {
         addresses: true,
         role: true,
       },
     });
-    return customer;
+    return user;
   }
 
   /**
    * Busca clientes com paginação
    */
   async findPaginated(page = 1, limit = 10): Promise<{
-    data: customer[];
+    data: user[];
     pagination: {
       total: number;
       page: number;
@@ -138,18 +133,18 @@ export class CustomerRepository implements ICustomerRepository {
     const offset = (page - 1) * limit;
 
     // Buscar dados com limite
-    const data = await db.query.customers.findMany({
+    const data = await db.query.users.findMany({
       with: {
         // addresses: true,
         // role: true,
       },
       limit: limit,
       offset: offset,
-      orderBy: (customers) => asc(customers.firstName),
+      orderBy: (users) => asc(users.firstName),
     });
     // Contar total para paginação
     const [{ count }] = await db.select({ count: sql<number>`count(*)` }).from(
-      customerTable,
+      userTable,
     );
 
     const total = Number(count);
@@ -166,13 +161,13 @@ export class CustomerRepository implements ICustomerRepository {
     };
   }
 
-  async findUsersWithRole(roleId: number): Promise<customer[]> {
-    const customers = await db.query.customers.findMany({
-      where: (customer, { eq }) => eq(customer.roleId, roleId),
+  async findUsersWithRole(roleId: number): Promise<user[]> {
+    const users = await db.query.users.findMany({
+      where: (user, { eq }) => eq(user.roleId, roleId),
       with: {
         role: true,
       },
     });
-    return customers;
+    return users;
   }
 }

@@ -1,7 +1,7 @@
 import { Context, Next } from "npm:hono";
 import { sign, verify } from "npm:hono/jwt";
 import { ApiError } from "../../utils/error-handler.ts";
-import type { customerToken } from "../../../infrastructure/database/schemas/customer.ts";
+import type { userToken } from "../../../infrastructure/database/schemas/user.ts";
 
 const JWT_SECRET = Deno.env.get("JWT_SECRET") || "your-secret-key";
 const JWT_EXPIRES = parseInt(Deno.env.get("JWT_EXPIRES") || "3600"); // 1 hora
@@ -9,7 +9,7 @@ const JWT_EXPIRES = parseInt(Deno.env.get("JWT_EXPIRES") || "3600"); // 1 hora
 /**
  * Gera um token JWT para o usuário
  */
-export function generateToken(user: customerToken): Promise<string> {
+export function generateToken(user: userToken): Promise<string> {
   const token = sign({
     uuid: user.uuid,
     role: user.role,

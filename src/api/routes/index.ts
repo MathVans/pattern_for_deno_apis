@@ -1,6 +1,6 @@
 import { Context, Hono, Next } from "npm:hono";
-import customerRouter from "./user.router.ts";
-import type { customerToken } from "../../../infrastructure/database/schemas/customer.ts";
+import userRouter from "./user.router.ts";
+import type { userToken } from "../../../infrastructure/database/schemas/user.ts";
 import { requireAdmin, requireRole, verifyJWT } from "../middlewares/jwt.ts";
 
 // Tipos para as variáveis no contexto
@@ -10,7 +10,7 @@ type Variables = {
     role: string;
     exp: number;
   };
-  user: customerToken;
+  user: userToken;
 };
 
 // Criar roteador principal
@@ -32,12 +32,12 @@ publicRoutes.get(
   publicFallback,
   (c) => c.json({ token: "dummy-token" }),
 );
-publicRoutes.route("/customers", customerRouter);
+publicRoutes.route("/users", userRouter);
 
 // 2. Rotas que precisam apenas de autenticação (qualquer usuário)
 const authenticatedRoutes = new Hono<{ Variables: Variables }>();
 authenticatedRoutes.use("*", verifyJWT); // Usando o middleware do arquivo jwt.ts
-// authenticatedRoutes.route("/customers", customerRouter);
+// authenticatedRoutes.route("/users", userRouter);
 
 // 3. Rotas que exigem permissão de admin
 const adminRoutes = new Hono<{ Variables: Variables }>();

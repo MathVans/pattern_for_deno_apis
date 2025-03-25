@@ -1,4 +1,4 @@
-import { customerTable } from "./customer.ts";
+import { userTable } from "./user.ts";
 import { relations } from "drizzle-orm";
 import {
   pgTable,
@@ -15,9 +15,9 @@ export const addressTable = pgTable("deno_addresses", {
   state: varchar("state", { length: 100 }).notNull(),
   zipCode: varchar("zip_code", { length: 20 }).notNull(),
   country: varchar("country", { length: 100 }).notNull(),
-  customerId: uuid("customer_id").notNull().references(() => customerTable.uuid, {
-    onDelete: 'cascade',  // Delete addresses when customer is deleted
-    onUpdate: 'cascade'   // Update foreign key if customer UUID changes
+  userId: uuid("user_id").notNull().references(() => userTable.uuid, {
+    onDelete: 'cascade',  // Delete addresses when user is deleted
+    onUpdate: 'cascade'   // Update foreign key if user UUID changes
     }),
     ...addTimestamps,
 });
@@ -25,9 +25,9 @@ export const addressTable = pgTable("deno_addresses", {
 export const AddressRelations = relations(
   addressTable,
   ({ one }) => ({
-    customer: one(customerTable, {
-      fields: [addressTable.customerId],
-      references: [customerTable.uuid],
+    user: one(userTable, {
+      fields: [addressTable.userId],
+      references: [userTable.uuid],
     }),
   }),
 );

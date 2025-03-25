@@ -8,9 +8,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger para a tabela de clientes
-DROP TRIGGER IF EXISTS update_customer_timestamp ON deno_customers;
-CREATE TRIGGER update_customer_timestamp
-BEFORE UPDATE ON deno_customers
+DROP TRIGGER IF EXISTS update_user_timestamp ON deno_users;
+CREATE TRIGGER update_user_timestamp
+BEFORE UPDATE ON deno_users
 FOR EACH ROW
 EXECUTE FUNCTION update_timestamp();
 

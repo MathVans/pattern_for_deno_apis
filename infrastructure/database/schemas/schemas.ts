@@ -1,14 +1,14 @@
 import { addressTable, AddressRelations } from './address.ts';
-import { customerTable, customerRelations } from './customer.ts';
+import { userTable, userRelations } from './user.ts';
 import { roleTable, roleRelations } from './role.ts';
 
 // Group tables together
 export const tables = {
   addresses: addressTable,
-  customers: customerTable,
+  users: userTable,
   roles: roleTable,
   AddressRelations,
-  customerRelations,
+  userRelations,
   roleRelations,
 };
 

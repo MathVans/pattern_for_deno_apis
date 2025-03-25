@@ -5,7 +5,7 @@ import {
   pgEnum,
   pgTable,
 } from "drizzle-orm/pg-core";
-import { customerTable } from "./customer.ts";
+import { userTable } from "./user.ts";
 
 // // Definir o enum primeiro para PostgreSQL
 export const roleNameEnum = pgEnum('role_name', ['admin', 'Common']);
@@ -21,7 +21,7 @@ export type role = typeof roleTable.$inferSelect;
 export type newRole = typeof roleTable.$inferInsert;
 export type updateRole = Partial<Omit<role, "id">>;
 
-// Relação com os customers
+// Relação com os users
 export const roleRelations = relations(roleTable, ({ many }) => ({
-  customers: many(customerTable),
+  users: many(userTable),
 }));

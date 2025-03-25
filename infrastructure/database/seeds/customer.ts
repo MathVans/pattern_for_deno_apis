@@ -1,7 +1,7 @@
 import { load } from "@std/dotenv";
 import { db } from "../db.ts";
 import { roleTable } from "../schemas/role.ts";
-import { customerTable } from "../schemas/customer.ts";
+import { customerTable } from "../schemas/user.ts";
 import { addressTable } from "../schemas/address.ts";
 
 // Load environment variables

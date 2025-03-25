@@ -1,13 +1,13 @@
 import { Hono } from "npm:hono";
 import { describeRoute } from "npm:hono-openapi";
 import { resolver, validator } from "npm:hono-openapi/zod";
-import { CustomerController } from "../controllers/user.controller.ts";
+import { UserController } from "../controllers/user.controller.ts";
 import {
-  createCustomerSchema,
-  customerInfoSchema,
-  customerSchema,
-  customersPaginationSchema,
-  updateCustomerSchema,
+  createUserSchema,
+  updateUserSchema,
+  userInfoSchema,
+  userSchema,
+  usersPaginationSchema,
 } from "../validators/user.validator.ts";
 import {
   badRequestErrorSchema,
@@ -17,17 +17,17 @@ import {
 } from "../validators/error.validator.ts";
 import "zod-openapi/extend";
 
-// Create a router for customer endpoints
-const customerRouter = new Hono();
-const customerController = new CustomerController();
+// Create a router for user endpoints
+const userRouter = new Hono();
+const userController = new UserController();
 
-// Get all customers
-customerRouter.get(
+// Get all users
+userRouter.get(
   "/",
   describeRoute({
-    tags: ["Customers"],
-    summary: "List all customers",
-    description: "Retrieve all customers with pagination support",
+    tags: ["Users"],
+    summary: "List all users",
+    description: "Retrieve all users with pagination support",
     parameters: [
       {
         name: "page",
@@ -55,10 +55,10 @@ customerRouter.get(
     ],
     responses: {
       200: {
-        description: "List of customers with pagination metadata",
+        description: "List of users with pagination metadata",
         content: {
           "application/json": {
-            schema: resolver(customersPaginationSchema), //schema: customerSchema,
+            schema: resolver(usersPaginationSchema), //schema: userSchema,
           },
         },
       },
@@ -72,21 +72,21 @@ customerRouter.get(
       },
     },
   }),
-  customerController.getAllCustomers,
+  userController.getAllUsers,
 );
 
-// // Get customer by ID
-customerRouter.get(
+// // Get user by ID
+userRouter.get(
   "/:id",
   describeRoute({
-    tags: ["Customers"],
-    summary: "Get customer details",
-    description: "Retrieve all customer information by UUID.",
+    tags: ["Users"],
+    summary: "Get user details",
+    description: "Retrieve all user information by UUID.",
     parameters: [
       {
         name: "id",
         in: "path",
-        description: "Customer UUID",
+        description: "User UUID",
         required: true,
         schema: {
           type: "string",
@@ -96,15 +96,15 @@ customerRouter.get(
     ],
     responses: {
       200: {
-        description: "Customer found",
+        description: "User found",
         content: {
           "application/json": {
-            schema: resolver(customerInfoSchema),
+            schema: resolver(userInfoSchema),
           },
         },
       },
       404: {
-        description: "Customer not found",
+        description: "User not found",
         content: {
           "application/json": {
             schema: resolver(notFoundErrorSchema),
@@ -121,31 +121,31 @@ customerRouter.get(
       },
     },
   }),
-  customerController.getCustomerById,
+  userController.getUserById,
 );
 
-// Create customer
-customerRouter.post(
+// Create user
+userRouter.post(
   "/",
   describeRoute({
-    tags: ["Customers"],
-    summary: "Create a new customer",
-    description: "Create a new customer with validation",
+    tags: ["Users"],
+    summary: "Create a new user",
+    description: "Create a new user with validation",
     requestBody: {
-      description: "Customer data",
+      description: "User data",
       required: true,
       content: {
         "application/json": {
-          schema: resolver(createCustomerSchema),
+          schema: resolver(createUserSchema),
         },
       },
     },
     responses: {
       201: {
-        description: "Customer created successfully",
+        description: "User created successfully",
         content: {
           "application/json": {
-            schema: resolver(customerSchema),
+            schema: resolver(userSchema),
           },
         },
       },
@@ -175,22 +175,22 @@ customerRouter.post(
       },
     },
   }),
-  validator("json", createCustomerSchema),
-  customerController.createCustomer,
+  validator("json", createUserSchema),
+  userController.createUser,
 );
 
-// // Update customer
-// customerRouter.put(
+// // Update user
+// userRouter.put(
 //   "/:id",
 //   describeRoute({
-//     tags: ["Customers"],
-//     summary: "Update customer",
-//     description: "Update an existing customer with validation",
+//     tags: ["Users"],
+//     summary: "Update user",
+//     description: "Update an existing user with validation",
 //     parameters: [
 //       {
 //         name: "id",
 //         in: "path",
-//         description: "Customer UUID",
+//         description: "User UUID",
 //         required: true,
 //         schema: {
 //           type: "string",
@@ -199,21 +199,21 @@ customerRouter.post(
 //       },
 //     ],
 //     requestBody: {
-//       description: "Customer data to update",
+//       description: "User data to update",
 //       required: true,
 //       content: {
 //         "application/json": {
-//           schema: resolver(updateCustomerSchema),
+//           schema: resolver(updateUserSchema),
 //         },
 //       },
 //     },
 //     responses: {
 //       200: {
-//         description: "Customer updated successfully",
+//         description: "User updated successfully",
 //         content: {
 //           "application/json": {
 //             schema: resolver({
-//               data: customerSchema,
+//               data: userSchema,
 //             }),
 //           },
 //         },
@@ -231,7 +231,7 @@ customerRouter.post(
 //         },
 //       },
 //       404: {
-//         description: "Customer not found",
+//         description: "User not found",
 //         content: {
 //           "application/json": {
 //             schema: resolver({
@@ -254,21 +254,21 @@ customerRouter.post(
 //       },
 //     },
 //   }),
-//   customerController.updateCustomer,
+//   userController.updateUser,
 // );
 
-// // Delete customer
-// customerRouter.delete(
+// // Delete user
+// userRouter.delete(
 //   "/:id",
 //   describeRoute({
-//     tags: ["Customers"],
-//     summary: "Delete customer",
-//     description: "Delete a customer by UUID",
+//     tags: ["Users"],
+//     summary: "Delete user",
+//     description: "Delete a user by UUID",
 //     parameters: [
 //       {
 //         name: "id",
 //         in: "path",
-//         description: "Customer UUID",
+//         description: "User UUID",
 //         required: true,
 //         schema: {
 //           type: "string",
@@ -278,7 +278,7 @@ customerRouter.post(
 //     ],
 //     responses: {
 //       200: {
-//         description: "Customer deleted successfully",
+//         description: "User deleted successfully",
 //         content: {
 //           "application/json": {
 //             schema: resolver({
@@ -289,7 +289,7 @@ customerRouter.post(
 //         },
 //       },
 //       404: {
-//         description: "Customer not found",
+//         description: "User not found",
 //         content: {
 //           "application/json": {
 //             schema: resolver({
@@ -301,22 +301,22 @@ customerRouter.post(
 //       },
 //     },
 //   }),
-//   customerController.deleteCustomer,
+//   userController.deleteUser,
 // );
 
-// // Check customer credit
-// customerRouter.post(
+// // Check user credit
+// userRouter.post(
 //   "/:id/check-credit",
 //   describeRoute({
-//     tags: ["Customers"],
-//     summary: "Check customer credit",
+//     tags: ["Users"],
+//     summary: "Check user credit",
 //     description:
-//       "Check if a customer has sufficient credit for a specific amount",
+//       "Check if a user has sufficient credit for a specific amount",
 //     parameters: [
 //       {
 //         name: "id",
 //         in: "path",
-//         description: "Customer UUID",
+//         description: "User UUID",
 //         required: true,
 //         schema: {
 //           type: "string",
@@ -362,7 +362,7 @@ customerRouter.post(
 //       },
 //     },
 //   }),
-//   customerController.checkCustomerCredit,
+//   userController.checkUserCredit,
 // );
 
-export default customerRouter;
+export default userRouter;

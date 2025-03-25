@@ -5,7 +5,7 @@ import { role, roleTable } from "./role.ts";
 import { address, addressTable } from "./address.ts";
 import { addTimestamps } from "../helpers/index.ts";
 
-export const customerTable = pgTable("deno_customers", {
+export const userTable = pgTable("deno_users", {
   uuid: uuid("uuid").defaultRandom().primaryKey(),
   firstName: varchar("first_name", { length: 100 }).notNull(),
   middleName: varchar("middle_name", { length: 100 }),
@@ -16,24 +16,24 @@ export const customerTable = pgTable("deno_customers", {
     "0.00",
   ),
   roleId: integer("role_id").notNull().references(() => roleTable.id, {
-    onDelete: "restrict", // Delete customer when role is deleted
+    onDelete: "restrict", // Delete user when role is deleted
     onUpdate: "cascade", // Update foreign key if role ID changes
   }),
   ...addTimestamps,
 });
 
-export const customerRelations = relations(customerTable, ({ many, one }) => ({
+export const userRelations = relations(userTable, ({ many, one }) => ({
   addresses: many(addressTable), // Certifique-se de que addressTable está corretamente importado e definido.
   role: one(roleTable, {
-    fields: [customerTable.roleId], // Confirme que roleId é a chave estrangeira correta.
+    fields: [userTable.roleId], // Confirme que roleId é a chave estrangeira correta.
     references: [roleTable.id], // Certifique-se de que roleTable.id existe e está correto.
   }),
 }));
 
-export type customer = typeof customerTable.$inferSelect;
-export type newCustomer = typeof customerTable.$inferInsert;
-export type customerToken = { uuid: string; role: string };
-export type customerInfo = customer & { addresses: address[]; role: role };
-export type updateCustomer = Partial<
-  Omit<customer, "uuid" | "createdAt" | "updatedAt">
+export type user = typeof userTable.$inferSelect;
+export type newUser = typeof userTable.$inferInsert;
+export type userToken = { uuid: string; role: string };
+export type userInfo = user & { addresses: address[]; role: role };
+export type updateUser = Partial<
+  Omit<user, "uuid" | "createdAt" | "updatedAt">
 >;

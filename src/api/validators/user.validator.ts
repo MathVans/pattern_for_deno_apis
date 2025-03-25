@@ -1,18 +1,18 @@
 import { z } from "zod";
 import { createInsertSchema, createSelectSchema } from "npm:drizzle-zod";
-import { customerTable } from "../../../infrastructure/database/schemas/customer.ts";
+import { userTable } from "../../../infrastructure/database/schemas/user.ts";
 import "zod-openapi/extend";
 
 // Generate base schemas from Drizzle models
-const baseCustomerSchema = createSelectSchema(customerTable);
-const baseNewCustomerSchema = createInsertSchema(customerTable);
+const baseUserSchema = createSelectSchema(userTable);
+const baseNewUserSchema = createInsertSchema(userTable);
 
 // Enhance with additional validation and OpenAPI documentation
-export const customerSchema = baseCustomerSchema.extend({}).openapi({
-  ref: "Customer",
+export const userSchema = baseUserSchema.extend({}).openapi({
+  ref: "User",
 });
 
-export const createCustomerSchema = baseNewCustomerSchema.omit({ uuid: true })
+export const createUserSchema = baseNewUserSchema.omit({ uuid: true })
   .extend({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
@@ -25,8 +25,8 @@ export const createCustomerSchema = baseNewCustomerSchema.omit({ uuid: true })
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),
   }).openapi({
-    ref: "CreateCustomer",
-    description: "Schema for creating a new customer",
+    ref: "CreateUser",
+    description: "Schema for creating a new user",
     example: {
       firstName: "John",
       lastName: "Doe",
@@ -38,12 +38,12 @@ export const createCustomerSchema = baseNewCustomerSchema.omit({ uuid: true })
     },
   });
 
-export const updateCustomerSchema = baseNewCustomerSchema.partial().openapi({
-  ref: "UpdateCustomer",
+export const updateUserSchema = baseNewUserSchema.partial().openapi({
+  ref: "UpdateUser",
 });
 
-// Schema for response with customer and addresses
-export const customerInfoSchema = customerSchema.extend({
+// Schema for response with user and addresses
+export const userInfoSchema = userSchema.extend({
   addresses: z.array(
     z.object({
       id: z.number(),
@@ -62,14 +62,14 @@ export const customerInfoSchema = customerSchema.extend({
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),
   }),
-}).openapi({ ref: "CustomerInfo" });
+}).openapi({ ref: "UserInfo" });
 
-export const customersPaginationSchema = z.object({
-  data: z.array(baseCustomerSchema),
+export const usersPaginationSchema = z.object({
+  data: z.array(baseUserSchema),
   pagination: z.object({
     total: z.number(),
     page: z.number(),
     limit: z.number(),
     pages: z.number(),
   }),
-}).openapi({ ref: "CustomersPagination" });
+}).openapi({ ref: "UsersPagination" });
