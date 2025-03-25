@@ -25,6 +25,10 @@ export const swaggerConfig = {
         url: "http://localhost:8000",
         description: "Local server",
       },
+      {
+        url: "http://10.20.37.81:8000",
+        description: "Mateus server",
+      },
     ],
   },
 };

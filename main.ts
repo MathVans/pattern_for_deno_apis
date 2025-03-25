@@ -31,7 +31,7 @@ app.use(
   }),
 );
 app.use(logger());
-app.use(errorMiddleware());
+
 // ---------- Rotas Públicas da Aplicação Principal ----------
 
 // Rota raiz informativa

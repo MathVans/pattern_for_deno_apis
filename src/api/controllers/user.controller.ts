@@ -1,4 +1,4 @@
-import { Context } from "hono";
+import { Context } from "npm:hono";
 import { UserService } from "../../application/services/user.service.ts";
 import { ApiError, handleError } from "../../utils/error-handler.ts";
 

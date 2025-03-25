@@ -6,8 +6,7 @@ class MongooseConnection {
 
   private constructor() {
     // Private constructor to enforce singleton
-    mongoose.set('strictQuery', true);
-    mongoose.set('strictQuery', true);
+    mongoose.set("strictQuery", true);
   }
 
   /**
@@ -37,11 +36,13 @@ class MongooseConnection {
 
       // Connect to MongoDB
       await mongoose.connect(uri, {
-        dbName: Deno.env.get("MONGODB_DB_NAME") || "deno_api_db"
+        dbName: Deno.env.get("MONGODB_DB_NAME") || "deno_api_db",
       });
 
       this.isConnected = true;
-      console.log("✅ MongoDB connection established successfully via Mongoose");
+      console.log(
+        "✅ MongoDB connection established successfully via Mongoose",
+      );
     } catch (error) {
       console.error("❌ Failed to connect to MongoDB:", error);
       throw error;

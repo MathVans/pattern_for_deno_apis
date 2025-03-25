@@ -11,7 +11,8 @@
     "db:export": "deno run --env -A npm:drizzle-kit export --config=drizzle.config.ts",
     "db:studio": " deno run --env -A npm:drizzle-kit studio --verbose --config=drizzle.config.ts --port=3000",
     "db:apply-triggers": "deno run --env -A infrastructure/database/migrations/scripts/apply-triggers.ts",
-    "db:seed": "deno run --env -A infrastructure/database/seeds/user.ts"
+    "db:seed": "deno run --env -A infrastructure/database/seeds/user.ts",
+    "mongodb:seed": "deno run --env -A infrastructure/mongodb/seeds/mongo.seed.ts"
   },
   "compilerOptions": {
     "strict": true
