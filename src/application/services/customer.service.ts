@@ -1,13 +1,14 @@
-import { 
-  CustomerRepository, 
-  ICustomerRepository 
+import {
+  CustomerRepository,
+  ICustomerRepository,
 } from "../../../infrastructure/database/repositories/customer.repository.ts";
-import type { 
-  customer, 
-  customerInfo, 
-  newCustomer, 
-  updateCustomer 
+import type {
+  customer,
+  customerInfo,
+  newCustomer,
+  updateCustomer,
 } from "../../../infrastructure/database/schemas/customer.ts";
+import { ApiError } from "../../utils/error-handler.ts";
 
 export class CustomerService {
   private customerRepository: ICustomerRepository;
@@ -35,14 +36,16 @@ export class CustomerService {
    */
   async createCustomer(data: newCustomer): Promise<customer> {
     // Business validation: check if email already exists
-    const existingCustomer = await this.customerRepository.findByEmail(data.email);
+    const existingCustomer = await this.customerRepository.findByEmail(
+      data.email,
+    );
     if (existingCustomer) {
-      throw new Error("Email already in use");
+      throw ApiError.conflict("Email already in use by another customer");
     }
 
     // Business validation: validate credit limit
     if (data.creditLimit && parseFloat(data.creditLimit.toString()) < 0) {
-      throw new Error("Credit limit cannot be negative");
+      throw ApiError.validation("Credit limit cannot be negative");
     }
 
     // Create customer
@@ -52,7 +55,10 @@ export class CustomerService {
   /**
    * Update a customer with validation
    */
-  async updateCustomer(uuid: string, data: updateCustomer): Promise<customer | undefined> {
+  async updateCustomer(
+    uuid: string,
+    data: updateCustomer,
+  ): Promise<customer | undefined> {
     // Check if customer exists
     const customer = await this.customerRepository.findById(uuid);
     if (!customer) {
@@ -61,7 +67,9 @@ export class CustomerService {
 
     // If email is being updated, check for uniqueness
     if (data.email && data.email !== customer.email) {
-      const existingCustomer = await this.customerRepository.findByEmail(data.email);
+      const existingCustomer = await this.customerRepository.findByEmail(
+        data.email,
+      );
       if (existingCustomer) {
         throw new Error("Email already in use by another customer");
       }
@@ -88,7 +96,6 @@ export class CustomerService {
     return await this.customerRepository.delete(uuid);
   }
 
-
   /**
    * Business logic: Check if customer has sufficient credit
    */
@@ -105,37 +112,39 @@ export class CustomerService {
   /**
    * Business logic: Deduct credit from customer
    */
-    async deductCredit(customerId: string, amount: number): Promise<boolean> {
-        const customer = await this.customerRepository.findById(customerId);
-        if (!customer || !customer.creditLimit) {
-        return false;
-        }
-    
-        const creditLimit = parseFloat(customer.creditLimit.toString());
-        const newCredit = creditLimit - amount;
-        if (newCredit < 0) {
-        return false;
-        }
-    
-        await this.customerRepository.update(customerId, { creditLimit: newCredit.toString() });
-        return true;
+  async deductCredit(customerId: string, amount: number): Promise<boolean> {
+    const customer = await this.customerRepository.findById(customerId);
+    if (!customer || !customer.creditLimit) {
+      return false;
     }
 
-    /**
-     * Business logic: Return users grouped by role
-     */
-    async groupByRole() {
-        const customers = await this.customerRepository.findAll();
-        const grouped = customers.reduce((acc, customer) => {
-        const role = customer.role.name;
-        if (!acc[role]) {
-            acc[role] = [];
-        }
-        acc[role].push(customer);
-        return acc;
-        }, {} as Record<string, customer[]>);
-        return grouped;
+    const creditLimit = parseFloat(customer.creditLimit.toString());
+    const newCredit = creditLimit - amount;
+    if (newCredit < 0) {
+      return false;
     }
+
+    await this.customerRepository.update(customerId, {
+      creditLimit: newCredit.toString(),
+    });
+    return true;
+  }
+
+  /**
+   * Business logic: Return users grouped by role
+   */
+  async groupByRole() {
+    const customers = await this.customerRepository.findAll();
+    const grouped = customers.reduce((acc, customer) => {
+      const role = customer.role.name;
+      if (!acc[role]) {
+        acc[role] = [];
+      }
+      acc[role].push(customer);
+      return acc;
+    }, {} as Record<string, customer[]>);
+    return grouped;
+  }
 
   /**
    * Get customer name with proper formatting

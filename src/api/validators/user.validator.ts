@@ -12,18 +12,31 @@ export const customerSchema = baseCustomerSchema.extend({}).openapi({
   ref: "Customer",
 });
 
-export const createCustomerSchema = baseNewCustomerSchema.extend({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Invalid email format"),
-  roleId: z.number().int().positive(),
-  middleName: z.string().optional().nullable(),
-  creditLimit: z.number().optional().default(0)
-    .transform((val) => val !== undefined ? String(val) : undefined),
-  phone: z.string().optional().nullable(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
-}).openapi({ ref: "CreateCustomer" });
+export const createCustomerSchema = baseNewCustomerSchema.omit({ uuid: true })
+  .extend({
+    firstName: z.string().min(2, "First name must be at least 2 characters"),
+    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+    email: z.string().email("Invalid email format"),
+    roleId: z.number().int().positive(),
+    middleName: z.string().optional().nullable(),
+    creditLimit: z.number().optional().default(0)
+      .transform((val) => val !== undefined ? String(val) : undefined),
+    phone: z.string().optional().nullable(),
+    createdAt: z.date().optional(),
+    updatedAt: z.date().optional(),
+  }).openapi({
+    ref: "CreateCustomer",
+    description: "Schema for creating a new customer",
+    example: {
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@example.com",
+      roleId: 1,
+      middleName: "Smith",
+      creditLimit: 1000,
+      phone: "+1234567890",
+    },
+  });
 
 export const updateCustomerSchema = baseNewCustomerSchema.partial().openapi({
   ref: "UpdateCustomer",

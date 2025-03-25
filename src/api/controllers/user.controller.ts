@@ -1,7 +1,10 @@
 import { Context } from "hono";
 import { CustomerService } from "../../application/services/customer.service.ts";
 import { ApiError, handleError } from "../../utils/error-handler.ts";
-import { updateCustomerSchema } from "../validators/user.validator.ts";
+import {
+  createCustomerSchema,
+  updateCustomerSchema,
+} from "../validators/user.validator.ts";
 
 export class CustomerController {
   private customerService: CustomerService;
@@ -43,8 +46,8 @@ export class CustomerController {
   createCustomer = async (c: Context) => {
     try {
       // Get pre-validated data from the validator middleware
-      const validatedData = c.req.valid("json") as newCustomer;
-
+      const body = await c.req.json();
+      const validatedData = createCustomerSchema.parse(body);
       // Use validated data with service
       const result = await this.customerService.createCustomer(validatedData);
 

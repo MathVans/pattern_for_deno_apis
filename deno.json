@@ -1,6 +1,7 @@
 {
   "nodeModulesDir": "auto",
   "tasks": {
+    "debug": "deno run -A --inspect-brk  main.ts",
     "dev": "deno run -A --env --watch main.ts",
     "db:generate": "deno run --env -A  npm:drizzle-kit generate  --config=drizzle.config.ts --name=deno_dev",
     "db:migrate": "deno run --env -A npm:drizzle-kit migrate --config=drizzle.config.ts && deno run --env -A infrastructure/database/migrations/scripts/apply-triggers.ts",
@@ -11,6 +12,9 @@
     "db:studio": " deno run --env -A npm:drizzle-kit studio --verbose --config=drizzle.config.ts --port=3000",
     "db:apply-triggers": "deno run --env -A infrastructure/database/migrations/scripts/apply-triggers.ts",
     "db:seed": "deno run --env -A infrastructure/database/seeds/customer.ts"
+  },
+  "compilerOptions": {
+    "strict": true
   },
   "imports": {
     "@hono/zod-openapi": "npm:@hono/zod-openapi@^0.19.2",

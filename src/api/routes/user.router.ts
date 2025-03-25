@@ -176,8 +176,7 @@ customerRouter.post(
     },
   }),
   validator("json", createCustomerSchema),
-  // customerController.createCustomer,
-  return c.req.valid("json")
+  customerController.createCustomer,
 );
 
 // // Update customer
