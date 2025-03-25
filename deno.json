@@ -27,7 +27,7 @@
     "drizzle-orm": "npm:drizzle-orm@^0.40.0",
     "drizzle-seed": "npm:drizzle-seed@^0.3.1",
     "drizzle-zod": "npm:drizzle-zod@^0.7.0",
-    "hono": "npm:hono@^4.7.4",
+    "npm:mongoose": "npm:mongoose@^8.13.0",
     "npm:hono": "npm:hono@^4.7.4",
     "npm:hono-openapi": "npm:hono-openapi@^0.4.6",
     "npm:postgres": "npm:postgres@^3.4.5",

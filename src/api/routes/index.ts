@@ -32,12 +32,12 @@ publicRoutes.get(
   publicFallback,
   (c) => c.json({ token: "dummy-token" }),
 );
-publicRoutes.route("/users", userRouter);
+// publicRoutes.route("/users", userRouter);
 
 // 2. Rotas que precisam apenas de autenticação (qualquer usuário)
 const authenticatedRoutes = new Hono<{ Variables: Variables }>();
 authenticatedRoutes.use("*", verifyJWT); // Usando o middleware do arquivo jwt.ts
-// authenticatedRoutes.route("/users", userRouter);
+authenticatedRoutes.route("/users", userRouter);
 
 // 3. Rotas que exigem permissão de admin
 const adminRoutes = new Hono<{ Variables: Variables }>();
