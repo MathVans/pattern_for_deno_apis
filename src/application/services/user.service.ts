@@ -131,25 +131,6 @@ export class UserService {
   }
 
   /**
-   * Business logic: Return users grouped by role
-   */
-  async groupByRole() {
-    const users = await this.userRepository.findAll();
-    const grouped = users.reduce(
-      (acc: { [x: string]: any[] }, user: { role: { name: any } }) => {
-        const role = user.role.name;
-        if (!acc[role]) {
-          acc[role] = [];
-        }
-        acc[role].push(user);
-        return acc;
-      },
-      {} as Record<string, user[]>,
-    );
-    return grouped;
-  }
-
-  /**
    * Get user name with proper formatting
    */
   formatUserName(user: user): string {

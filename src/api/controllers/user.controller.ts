@@ -1,10 +1,6 @@
 import { Context } from "hono";
 import { UserService } from "../../application/services/user.service.ts";
 import { ApiError, handleError } from "../../utils/error-handler.ts";
-import {
-  createUserSchema,
-  updateUserSchema,
-} from "../validators/user.validator.ts";
 
 export class UserController {
   private userService: UserService;
@@ -90,17 +86,6 @@ export class UserController {
         success: true,
         message: "User deleted successfully",
       });
-    } catch (error) {
-      return handleError(c, error);
-    }
-  };
-
-  // Get users grouped by role
-  getUsersGroupedByRole = async (c: Context) => {
-    try {
-      const groupedUsers = await this.userService.groupByRole();
-
-      return c.json({ data: groupedUsers });
     } catch (error) {
       return handleError(c, error);
     }
