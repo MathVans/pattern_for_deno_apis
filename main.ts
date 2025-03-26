@@ -1,5 +1,5 @@
 import { Hono } from "npm:hono";
-import { getRouterName, showRoutes } from "hono/dev";
+import { getRouterName, showRoutes } from "npm:hono/dev";
 import { getConnInfo } from "npm:hono/deno";
 import { load } from "@std/dotenv";
 import { prettyJSON } from "npm:hono/pretty-json";
