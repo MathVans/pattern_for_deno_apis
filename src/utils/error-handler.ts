@@ -75,7 +75,7 @@ export function handleError(c: Context, error: unknown): Response {
       message: error.message,
       details: error.details,
       status: error.status,
-    }, error.status); // Use o status do erro
+    }); // Use o status do erro
   }
 
   // Handle Zod validation errors

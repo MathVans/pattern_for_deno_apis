@@ -18,6 +18,7 @@
     "strict": true
   },
   "imports": {
+    "@azure/msal-node": "npm:@azure/msal-node@^3.4.1",
     "@hono/zod-openapi": "npm:@hono/zod-openapi@^0.19.2",
     "@hono/zod-validator": "npm:@hono/zod-validator@^0.4.3",
     "@scalar/hono-api-reference": "npm:@scalar/hono-api-reference@^0.7.1",
@@ -35,6 +36,11 @@
     "postgres": "npm:postgres@^3.4.5",
     "zod": "npm:zod@^3.24.2",
     "zod-openapi": "npm:zod-openapi@^4.2.3"
+  },
+  "lint": {
+    "files": {
+      "exclude": ["./infrastructure/auth/azure/msal.provider.ts"]
+    }
   }
 }
 

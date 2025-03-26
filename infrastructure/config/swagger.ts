@@ -1,6 +1,5 @@
 export const swaggerConfig = {
   documentation: {
-    
     info: {
       title: "Pattern for Typescript API with Deno, Hono and Drizzle",
       version: "1.0.0",
@@ -23,11 +22,11 @@ export const swaggerConfig = {
     ],
     servers: [
       {
-        url: "http://localhost:8000",
+        url: "http://localhost:3000",
         description: "Local server",
       },
       {
-        url: "http://10.20.37.81:8000",
+        url: "http://10.20.37.81:3000",
         description: "Mateus server",
       },
     ],

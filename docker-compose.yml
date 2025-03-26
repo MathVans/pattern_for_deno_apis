@@ -39,6 +39,26 @@ services:
       retries: 5
       start_period: 30s
 
+# Adicione este serviço ao seu docker-compose.yml existente
+  deno:
+    image: denoland/deno:latest
+    container_name: deno_api_app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - deno_cache:/deno-dir
+    working_dir: /app
+    command: deno task dev
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://deno_user:deno_password@postgres:5432/deno_api_db
+      - MONGODB_URI=mongodb://deno_user:deno_password@mongodb:27017/deno_api_db
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - FRONTEND_REDIRECT_URI=${FRONTEND_REDIRECT_URI}
 volumes:
   postgres_data:
   mongodb_data:
+  deno_cache:

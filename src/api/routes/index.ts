@@ -1,5 +1,6 @@
 import { Context, Hono, Next } from "npm:hono";
 import userRouter from "./user.router.ts";
+import authRouter from "./auth.router.ts";
 import type { userToken } from "../../../infrastructure/database/schemas/user.ts";
 import { generateToken, requireAdmin, verifyJWT } from "../middlewares/jwt.ts";
 
@@ -23,6 +24,7 @@ const publicFallback = async (c: Context, next: Next) => {
 // 1. Rotas públicas (sem autenticação)
 const publicRoutes = new Hono();
 publicRoutes.get("/health", publicFallback, (c) => c.json({ status: "ok" }));
+publicRoutes.route("/auth", authRouter);
 publicRoutes.get(
   "/login",
   async (c) => {
@@ -42,7 +44,7 @@ adminRoutes.use("*", verifyJWT, requireAdmin); // Usando os middlewares combinad
 adminRoutes.get("/admin/dashboard", (c) => c.json({ admin: true }));
 
 // Montar grupos no roteador principal
-router.route("/api/public", publicRoutes);
+router.route("/", publicRoutes);
 router.route("/api", authenticatedRoutes);
 router.route("/api/admin", adminRoutes);
 

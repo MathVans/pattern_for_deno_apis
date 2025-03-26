@@ -1,4 +1,5 @@
 import { Hono } from "npm:hono";
+import { getRouterName, showRoutes } from "hono/dev";
 import { getConnInfo } from "npm:hono/deno";
 import { load } from "@std/dotenv";
 import { prettyJSON } from "npm:hono/pretty-json";
@@ -97,6 +98,9 @@ app.route("/mongo", app_mongo);
 
 if (Deno.env.get("NODE_ENV") !== "production") {
   console.log("DEV");
+  showRoutes(app, {
+    verbose: true,
+  });
 }
 
 // Iniciar o servidor
