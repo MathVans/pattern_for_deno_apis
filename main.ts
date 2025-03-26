@@ -60,6 +60,9 @@ app_drizzle.get(
     theme: "mars", // Outras opções: moon, saturn, jupiter, elysiajs, mars,deepSpace
     url: "/openapi",
     layout: "modern",
+    onLoaded: () => {
+      console.log("Documentação carregada");
+    },
   }),
 );
 app_drizzle.route("/", router);
@@ -93,6 +96,7 @@ app.route("/", app_drizzle);
 app.route("/mongo", app_mongo);
 
 if (Deno.env.get("NODE_ENV") !== "production") {
+  console.log("DEV");
 }
 
 // Iniciar o servidor

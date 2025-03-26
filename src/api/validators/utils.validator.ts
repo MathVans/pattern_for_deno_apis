@@ -15,7 +15,7 @@ export const emptySuccessResponseSchema = z.object({
 /**
  * Empty success response (for operations that don't return data)
  */
-export const uuidSchema = z.object({
+export const _uuidSchema = z.object({
   id: z.string().uuid(),
 }).openapi({
   ref: "UUID",

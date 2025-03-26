@@ -1,5 +1,6 @@
 export const swaggerConfig = {
   documentation: {
+    
     info: {
       title: "Pattern for Typescript API with Deno, Hono and Drizzle",
       version: "1.0.0",

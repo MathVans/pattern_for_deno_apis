@@ -3,7 +3,6 @@ import userRouter from "./user.router.ts";
 import type { userToken } from "../../../infrastructure/database/schemas/user.ts";
 import { generateToken, requireAdmin, verifyJWT } from "../middlewares/jwt.ts";
 
-// Tipos para as variáveis no contexto
 type Variables = {
   jwtPayload: {
     uuid: string;
@@ -13,10 +12,9 @@ type Variables = {
   user: userToken;
 };
 
-// Criar roteador principal
 const router = new Hono<{ Variables: Variables }>();
 
-// Fallback para rotas não-autenticadas
+// Middleware para definir um usuário público
 const publicFallback = async (c: Context, next: Next) => {
   c.set("user", { uuid: "", role: "public" });
   await next();
