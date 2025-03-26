@@ -68,21 +68,18 @@ export class ApiError extends Error {
  * Handle error responses in controllers
  */
 export function handleError(c: Context, error: unknown): Response {
-  console.error("Error:", error);
-
-  // Handle ApiError
+  console.log("🚨 handleError chamado com:", error);
   if (error instanceof ApiError) {
     return c.json({
       code: error.code,
       message: error.message,
       details: error.details,
       status: error.status,
-    });
+    }, error.status); // Use o status do erro
   }
 
   // Handle Zod validation errors
   if (error instanceof z.ZodError) {
-    console.log("🚀 ~ handleError ~ error:", error);
     return c.json({
       code: ErrorCode.VALIDATION,
       message: "Validation failed",
@@ -106,6 +103,7 @@ export function errorMiddleware() {
     try {
       await next();
     } catch (error) {
+      console.log("🚨 handleError chamado com:", error);
       return handleError(c, error);
     }
   };

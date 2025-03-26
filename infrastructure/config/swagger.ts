@@ -36,3 +36,33 @@ export const swaggerConfig = {
 export const customCss = await Deno.readTextFileSync(
   "./static/custom-styles.css",
 );
+
+export const mongoSwaggerConfig = {
+  documentation: {
+    info: {
+      title: "MongoDB API with Mongoose",
+      version: "1.0.0",
+      description: "API usando Deno, TypeScript, Hono e Mongoose",
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+    servers: [
+      {
+        url: "http://localhost:8000/mongo",
+        description: "Local MongoDB server",
+      },
+    ],
+  },
+};

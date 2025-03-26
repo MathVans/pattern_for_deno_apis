@@ -6,36 +6,41 @@ import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import { openAPISpecs } from "npm:hono-openapi";
 import { apiReference } from "@scalar/hono-api-reference";
-import { errorMiddleware } from "./src/utils/error-handler.ts";
-import { customCss, swaggerConfig } from "./infrastructure/config/swagger.ts";
+import {
+  customCss,
+  mongoSwaggerConfig,
+  swaggerConfig,
+} from "./infrastructure/config/swagger.ts";
 import router from "./src/api/routes/index.ts";
 
 // Carregar variáveis de ambiente
 await load({ export: true });
 
-// Criar aplicação principal
-const app = new Hono();
+// Criar aplicação drizzle
+const app_drizzle = new Hono();
 
-// ---------- Middlewares Globais ----------
-app.use("*", errorMiddleware());
-app.use(prettyJSON());
-app.use(
-  "/*",
-  cors({
-    origin: ["http://localhost:8000", "https://seu-frontend.com"],
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-    exposeHeaders: ["Content-Length"],
-    maxAge: 600,
-    credentials: true,
-  }),
-);
-app.use(logger());
+// Criar aplicação mongoose
+const app_mongo = new Hono();
 
-// ---------- Rotas Públicas da Aplicação Principal ----------
+// Applying middleware to both apps
+[app_drizzle, app_mongo].forEach((app) => {
+  app.use(prettyJSON());
+  app.use(logger());
+  app.use(
+    "/*",
+    cors({
+      origin: ["http://localhost:8000", "https://seu-frontend.com"],
+      allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowHeaders: ["Content-Type", "Authorization"],
+      exposeHeaders: ["Content-Length"],
+      maxAge: 600,
+      credentials: true,
+    }),
+  );
+});
 
 // Rota raiz informativa
-app.get("/", (c) => {
+app_drizzle.get("/", (c) => {
   const info = getConnInfo(c);
   return c.json({
     message: "Bem-vindo à API Deno com Hono e Drizzle",
@@ -45,13 +50,10 @@ app.get("/", (c) => {
   });
 });
 
-// ---------- Documentação OpenAPI ----------
-
-// Servir especificação OpenAPI
-app.get("/openapi", openAPISpecs(app, swaggerConfig));
-
+//  Documentação OpenAPI
+app_drizzle.get("/openapi", openAPISpecs(app_drizzle, swaggerConfig));
 // Interface de documentação Scalar
-app.get(
+app_drizzle.get(
   "/docs",
   apiReference({
     customCss: customCss,
@@ -60,21 +62,37 @@ app.get(
     layout: "modern",
   }),
 );
+app_drizzle.route("/", router);
 
-// ---------- Montagem do Roteador Principal ----------
-app.route("", router);
+// ---------- MongoDB App Configuration ----------
+app_mongo.get("/", (c) => {
+  return c.json({
+    message: "Bem-vindo à API MongoDB com Mongoose",
+    documentation: "/mongo/docs",
+    version: "1.0.0",
+  });
+});
 
-// ---------- Inicialização do Servidor ----------
+// MongoDB API Documentation
+app_mongo.get("/openapi", openAPISpecs(app_mongo, mongoSwaggerConfig));
+app_mongo.get(
+  "/docs",
+  apiReference({
+    customCss: customCss,
+    theme: "deepSpace", // Using a different theme to differentiate
+    url: "/mongo/openapi",
+    layout: "modern",
+  }),
+);
 
-// Mostrar rotas disponíveis em modo de desenvolvimento
+// ---------- Main App to combine both ----------
+const app = new Hono();
+
+// Mount both apps
+app.route("/", app_drizzle);
+app.route("/mongo", app_mongo);
+
 if (Deno.env.get("NODE_ENV") !== "production") {
-  // console.log("\n📝 Rotas disponíveis:");
-
-  // const showRoutes = (await import("npm:hono/dev")).showRoutes;
-  // showRoutes(app, {
-  //   verbose: true,
-  //   colorize: true,
-  // });
 }
 
 // Iniciar o servidor

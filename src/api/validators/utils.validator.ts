@@ -11,3 +11,13 @@ export const emptySuccessResponseSchema = z.object({
   ref: "EmptySuccessResponse",
   description: "Success response without data",
 });
+
+/**
+ * Empty success response (for operations that don't return data)
+ */
+export const uuidSchema = z.object({
+  id: z.string().uuid(),
+}).openapi({
+  ref: "UUID",
+  description: "UUID string",
+});

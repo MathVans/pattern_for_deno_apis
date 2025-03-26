@@ -11,7 +11,10 @@ import {
   userSchema,
   usersPaginationSchema,
 } from "../validators/user.validator.ts";
-import { emptySuccessResponseSchema } from "./../validators/utils.validator.ts";
+import {
+  emptySuccessResponseSchema,
+  uuidSchema,
+} from "./../validators/utils.validator.ts";
 import {
   badRequestErrorSchema,
   conflictErrorSchema,
@@ -125,6 +128,7 @@ userRouter.get(
       },
     },
   }),
+  validator("param", uuidSchema),
   userController.getUserById,
 );
 
@@ -246,6 +250,7 @@ userRouter.put(
       },
     },
   }),
+  validator("param", uuidSchema),
   validator("json", updateUserSchema),
   userController.updateUser,
 );
@@ -338,6 +343,7 @@ userRouter.post(
       },
     },
   }),
+  validator("param", uuidSchema),
   validator("json", amountSchema),
   userController.checkUserCredit,
 );
@@ -389,6 +395,7 @@ userRouter.post(
       },
     },
   }),
+  validator("param", uuidSchema),
   validator("json", amountSchema),
   userController.deductUserCredit,
 );
