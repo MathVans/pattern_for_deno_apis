@@ -29,6 +29,11 @@ export const swaggerConfig = {
         url: "http://10.20.37.81:3000",
         description: "Mateus server",
       },
+      ,
+      {
+        url: "https://deno-pattern-api.azurewebsites.net",
+        description: "Azure server",
+      },
     ],
   },
 };

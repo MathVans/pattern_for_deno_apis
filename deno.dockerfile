@@ -11,6 +11,9 @@ RUN deno cache --lock=deno.lock main.ts
 # Copy the rest of the application source code
 COPY . .
 
+# Ensure correct permissions
+RUN chmod 755 /app
+
 # Compile the application - optional but can improve startup time
 RUN deno cache main.ts
 

@@ -22,7 +22,7 @@ export class AuthProvider {
   constructor(msalConfig: any) {
     this.msalConfig = msalConfig;
     this.cryptoProvider = new CryptoProvider();
-    this.FRONTEND_REDIRECT_URI = //Deno.env.get("FRONTEND_REDIRECT_URI") ||
+    this.FRONTEND_REDIRECT_URI = Deno.env.get("FRONTEND_REDIRECT_URI") ||
       "http://localhost:3000/auth/callback";
   }
 

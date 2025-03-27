@@ -106,12 +106,21 @@ authRouter.get(
       // Exchange code for tokens
       const tokenResponse = await authProvider.handleAuthCode(code);
 
-      // Return tokens or set in cookies/session
-      return c.json({
-        success: true,
+      const userData = {
+        id: tokenResponse?.account?.homeAccountId,
+        name: tokenResponse?.account?.name,
+        email: tokenResponse?.account?.username,
         accessToken: tokenResponse.accessToken,
         idToken: tokenResponse.idToken,
-        account: tokenResponse.account,
+      };
+
+      // Return tokens or set in cookies/session
+      return c.json({
+        userData,
+        // success: true,
+        // accessToken: tokenResponse.accessToken,
+        // idToken: tokenResponse.idToken,
+        // account: tokenResponse.account,
       });
     } catch (error) {
       console.error("Error handling auth callback:", error);
