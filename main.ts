@@ -30,7 +30,12 @@ const app_mongo = new Hono();
   app.use(
     "/*",
     cors({
-      origin: ["http://localhost:8000", "https://seu-frontend.com"],
+      origin: [
+        "http://localhost:8000",
+        "https://seu-frontend.com",
+        "http://localhost:4000",
+        "https://front-deno-auth.azurewebsites.net",
+      ],
       allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       allowHeaders: ["Content-Type", "Authorization"],
       exposeHeaders: ["Content-Length"],
